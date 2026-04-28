@@ -1,0 +1,55 @@
+src/
+│
+├── components/
+│   ├── common/
+│   │   ├── Navbar.jsx
+│   │   ├── Button.jsx
+│   │   ├── Modal.jsx
+│   │   └── Loader.jsx
+│   │
+│   ├── quiz/
+│   │   ├── QuestionCard.jsx
+│   │   ├── MCQOptions.jsx
+│   │   ├── CodeEditor.jsx
+│   │   ├── Timer.jsx
+│   │   └── ResultCard.jsx
+│   │
+│   ├── lobby/
+│   │   ├── RoomCard.jsx
+│   │   ├── FriendList.jsx
+│   │   ├── InviteModal.jsx
+│   │   └── CreateRoomForm.jsx
+│   │
+│   ├── leaderboard/
+│   │   ├── Leaderboard.jsx
+│   │   └── PlayerRow.jsx
+│
+├── pages/
+│   ├── Home.jsx
+│   ├── Practice.jsx
+│   ├── Compete.jsx
+│   ├── Tournament.jsx
+│   ├── Room.jsx
+│   └── Quiz.jsx
+│
+├── layouts/
+│   ├── MainLayout.jsx
+│   └── QuizLayout.jsx
+│
+├── hooks/
+│   ├── useTimer.js
+│   ├── useSocket.js
+│   └── useQuiz.js
+│
+├── services/
+│   ├── firebase.js
+│   ├── api.js (Node backend)
+│   └── socket.js
+│
+├── store/ (if using Zustand/Redux)
+│   └── quizStore.js
+│
+├── utils/
+│   └── constants.js
+│
+└── App.jsx
