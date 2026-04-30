@@ -1,199 +1,242 @@
-import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+import "dotenv/config";
 import DsaQuestion from './src/models/DsaQuestion.js';
 
-dotenv.config();
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/skillsphere";
 
-const dummyQuestions = [
+const questionsList = [
+  // Category 1: Basic Math & Logic
   {
-    title: "Sum of Two Numbers",
-    description: "Return sum of two numbers given as 'a b'.",
-    difficulty: "EASY",
+    title: "1. Palindrome Number",
+    description: "Check if an integer is a palindrome. Return 'true' or 'false'.\n\n**Time Complexity:** O(log10 n)\n**Space Complexity:** O(1)",
+    difficulty: "Easy",
+    category: "Math",
     points: 10,
-    initialCode: { javascript: "function solve(input) {\n}" },
-    testCases: [{ input: "2 3", expectedOutput: "5" }]
+    testCases: [
+      { input: "121", expectedOutput: "true" },
+      { input: "-121", expectedOutput: "false" },
+      { input: "10", expectedOutput: "false" }
+    ],
+    initialCode: {
+      javascript: "function solve(n) {\n  // return 'true' or 'false'\n}",
+      python: "def solve(n):\n    # return 'true' or 'false'\n    pass",
+      cpp: "string solve(string n) {\n  // return \"true\" or \"false\"\n}",
+      java: "public static String solve(String n) {\n  // return \"true\" or \"false\"\n}",
+      c: "char* solve(char* n) {\n  // return \"true\" or \"false\"\n}"
+    }
   },
   {
-    title: "Even or Odd",
-    description: "Return 'even' or 'odd' for a number.",
-    difficulty: "EASY",
+    title: "2. Armstrong Number",
+    description: "Check if the sum of the cubes of the digits equals the number itself.\n\n**Time Complexity:** O(log10 n)\n**Space Complexity:** O(1)",
+    difficulty: "Easy",
+    category: "Math",
     points: 10,
-    initialCode: { javascript: "function solve(input) {\n}" },
-    testCases: [{ input: "4", expectedOutput: "even" }]
+    testCases: [
+      { input: "153", expectedOutput: "true" },
+      { input: "370", expectedOutput: "true" },
+      { input: "123", expectedOutput: "false" }
+    ],
+    initialCode: {
+      javascript: "function solve(n) {\n  // return 'true' or 'false'\n}",
+      python: "def solve(n):\n    # return 'true' or 'false'\n    pass",
+      cpp: "string solve(string n) {\n  // return \"true\" or \"false\"\n}",
+      java: "public static String solve(String n) {\n  // return \"true\" or \"false\"\n}",
+      c: "char* solve(char* n) {\n  // return \"true\" or \"false\"\n}"
+    }
   },
   {
-    title: "Reverse String",
-    description: "Reverse the input string.",
-    difficulty: "EASY",
+    title: "3. Prime Number Check",
+    description: "Determine if a number is prime. Return 'true' or 'false'.\n\n**Time Complexity:** O(√n)\n**Space Complexity:** O(1)",
+    difficulty: "Easy",
+    category: "Math",
     points: 10,
-    initialCode: { javascript: "function solve(input) {\n}" },
-    testCases: [{ input: "abc", expectedOutput: "cba" }]
+    testCases: [
+      { input: "17", expectedOutput: "true" },
+      { input: "4", expectedOutput: "false" },
+      { input: "2", expectedOutput: "true" }
+    ],
+    initialCode: {
+      javascript: "function solve(n) {\n  // return 'true' or 'false'\n}",
+      python: "def solve(n):\n    # return 'true' or 'false'\n    pass",
+      cpp: "string solve(string n) {\n  // return \"true\" or \"false\"\n}",
+      java: "public static String solve(String n) {\n  // return \"true\" or \"false\"\n}",
+      c: "char* solve(char* n) {\n  // return \"true\" or \"false\"\n}"
+    }
   },
   {
-    title: "Palindrome Check",
-    description: "Return true if string is palindrome.",
-    difficulty: "EASY",
+    title: "4. Factorial of a Number",
+    description: "Calculate the factorial of n (n!). Return the result as a string.\n\n**Time Complexity:** O(n)\n**Space Complexity:** O(1)",
+    difficulty: "Easy",
+    category: "Math",
     points: 10,
-    initialCode: { javascript: "function solve(input) {\n}" },
-    testCases: [{ input: "madam", expectedOutput: "true" }]
+    testCases: [
+      { input: "5", expectedOutput: "120" },
+      { input: "0", expectedOutput: "1" },
+      { input: "6", expectedOutput: "720" }
+    ],
+    initialCode: {
+      javascript: "function solve(n) {\n  // return the factorial as a string\n}",
+      python: "def solve(n):\n    # return the factorial as a string\n    pass",
+      cpp: "string solve(string n) {\n  // return the factorial as a string\n}",
+      java: "public static String solve(String n) {\n  // return the factorial as a string\n}",
+      c: "char* solve(char* n) {\n  // return the factorial as a string\n}"
+    }
   },
   {
-    title: "Max of Array",
-    description: "Return max element from space-separated numbers.",
-    difficulty: "EASY",
+    title: "5. Fibonacci Series",
+    description: "Return the n-th number in the Fibonacci sequence. (Assume 0-th is 0, 1-st is 1)\n\n**Time Complexity:** O(n)\n**Space Complexity:** O(1)",
+    difficulty: "Easy",
+    category: "Math",
     points: 10,
-    initialCode: { javascript: "function solve(input) {\n}" },
-    testCases: [{ input: "1 5 3", expectedOutput: "5" }]
-  },
-  {
-    title: "Min of Array",
-    description: "Return minimum element.",
-    difficulty: "EASY",
-    points: 10,
-    initialCode: { javascript: "function solve(input) {\n}" },
-    testCases: [{ input: "2 8 1", expectedOutput: "1" }]
-  },
-  {
-    title: "Count Vowels",
-    description: "Count vowels in string.",
-    difficulty: "EASY",
-    points: 10,
-    initialCode: { javascript: "function solve(input) {\n}" },
-    testCases: [{ input: "hello", expectedOutput: "2" }]
-  },
-  {
-    title: "Factorial",
-    description: "Return factorial of a number.",
-    difficulty: "EASY",
-    points: 10,
-    initialCode: { javascript: "function solve(input) {\n}" },
-    testCases: [{ input: "5", expectedOutput: "120" }]
-  },
-  {
-    title: "Sum of Digits",
-    description: "Return sum of digits.",
-    difficulty: "EASY",
-    points: 10,
-    initialCode: { javascript: "function solve(input) {\n}" },
-    testCases: [{ input: "123", expectedOutput: "6" }]
-  },
-  {
-    title: "Binary Conversion",
-    description: "Convert number to binary.",
-    difficulty: "EASY",
-    points: 10,
-    initialCode: { javascript: "function solve(input) {\n}" },
-    testCases: [{ input: "5", expectedOutput: "101" }]
+    testCases: [
+      { input: "6", expectedOutput: "8" },
+      { input: "0", expectedOutput: "0" },
+      { input: "10", expectedOutput: "55" }
+    ],
+    initialCode: {
+      javascript: "function solve(n) {\n  // return the n-th Fibonacci number as a string\n}",
+      python: "def solve(n):\n    # return the n-th Fibonacci number as a string\n    pass",
+      cpp: "string solve(string n) {\n  // return as string\n}",
+      java: "public static String solve(String n) {\n  // return as string\n}",
+      c: "char* solve(char* n) {\n  // return as string\n}"
+    }
   },
 
-
+  // Category 2: Strings
   {
-    title: "Count Even Numbers",
-    description: "Count evens in array.",
-    difficulty: "EASY",
+    title: "6. Return Length of String",
+    description: "Return the total character count of the given string as a string.\n\n**Time Complexity:** O(1)\n**Space Complexity:** O(1)",
+    difficulty: "Easy",
+    category: "Strings",
     points: 10,
-    initialCode: { javascript: "function solve(input) {\n}" },
-    testCases: [{ input: "1 2 3 4", expectedOutput: "2" }]
+    testCases: [
+      { input: "Hello", expectedOutput: "5" },
+      { input: "SkillSphere", expectedOutput: "11" },
+      { input: "AI", expectedOutput: "2" }
+    ],
+    initialCode: {
+      javascript: "function solve(s) {\n  // return length as a string\n}",
+      python: "def solve(s):\n    # return length as a string\n    pass",
+      cpp: "string solve(string s) {\n  // return length as a string\n}",
+      java: "public static String solve(String s) {\n  // return length as a string\n}",
+      c: "char* solve(char* s) {\n  // return length as a string\n}"
+    }
   },
   {
-    title: "Second Largest",
-    description: "Return second largest number.",
-    difficulty: "MEDIUM",
+    title: "7. Reverse a String",
+    description: "Reverse the characters in the string in place.\n\n**Time Complexity:** O(n)\n**Space Complexity:** O(n)",
+    difficulty: "Easy",
+    category: "Strings",
+    points: 10,
+    testCases: [
+      { input: "code", expectedOutput: "edoc" },
+      { input: "hello", expectedOutput: "olleh" },
+      { input: "a", expectedOutput: "a" }
+    ],
+    initialCode: {
+      javascript: "function solve(s) {\n  // return reversed string\n}",
+      python: "def solve(s):\n    # return reversed string\n    pass",
+      cpp: "string solve(string s) {\n  // return reversed string\n}",
+      java: "public static String solve(String s) {\n  // return reversed string\n}",
+      c: "char* solve(char* s) {\n  // return reversed string\n}"
+    }
+  },
+  {
+    title: "8. Sentence Palindrome",
+    description: "Check palindrome status ignoring case and non-alphanumeric characters. Return 'true' or 'false'.\n\n**Time Complexity:** O(n)\n**Space Complexity:** O(n)",
+    difficulty: "Medium",
+    category: "Strings",
     points: 20,
-    initialCode: { javascript: "function solve(input) {\n}" },
-    testCases: [{ input: "1 5 3 4", expectedOutput: "4" }]
+    testCases: [
+      { input: "Race Car", expectedOutput: "true" },
+      { input: "A man, a plan, a canal: Panama", expectedOutput: "true" },
+      { input: "hello", expectedOutput: "false" }
+    ],
+    initialCode: {
+      javascript: "function solve(s) {\n  // return 'true' or 'false'\n}",
+      python: "def solve(s):\n    # return 'true' or 'false'\n    pass",
+      cpp: "string solve(string s) {\n  // return \"true\" or \"false\"\n}",
+      java: "public static String solve(String s) {\n  // return \"true\" or \"false\"\n}",
+      c: "char* solve(char* s) {\n  // return \"true\" or \"false\"\n}"
+    }
   },
   {
-    title: "Remove Spaces",
-    description: "Remove spaces from string.",
-    difficulty: "EASY",
-    points: 10,
-    initialCode: { javascript: "function solve(input) {\n}" },
-    testCases: [{ input: "a b c", expectedOutput: "abc" }]
-  },
-  {
-    title: "Uppercase",
-    description: "Convert string to uppercase.",
-    difficulty: "EASY",
-    points: 10,
-    initialCode: { javascript: "function solve(input) {\n}" },
-    testCases: [{ input: "abc", expectedOutput: "ABC" }]
-  },
-  {
-    title: "Count Words",
-    description: "Count words in string.",
-    difficulty: "EASY",
-    points: 10,
-    initialCode: { javascript: "function solve(input) {\n}" },
-    testCases: [{ input: "hello world", expectedOutput: "2" }]
-  },
-  {
-    title: "First Character",
-    description: "Return first character.",
-    difficulty: "EASY",
-    points: 10,
-    initialCode: { javascript: "function solve(input) {\n}" },
-    testCases: [{ input: "abc", expectedOutput: "a" }]
-  },
-  {
-    title: "Last Character",
-    description: "Return last character.",
-    difficulty: "EASY",
-    points: 10,
-    initialCode: { javascript: "function solve(input) {\n}" },
-    testCases: [{ input: "abc", expectedOutput: "c" }]
-  },
-  {
-    title: "Multiply All",
-    description: "Multiply all numbers.",
-    difficulty: "EASY",
-    points: 10,
-    initialCode: { javascript: "function solve(input) {\n}" },
-    testCases: [{ input: "2 3 4", expectedOutput: "24" }]
-  },
-  {
-    title: "Check Prime",
-    description: "Return true if prime.",
-    difficulty: "MEDIUM",
+    title: "9. Longest Substring Without Repeating",
+    description: "Find the length of the longest substring with unique characters. Return as string.\n\n**Time Complexity:** O(n)\n**Space Complexity:** O(min(n, m))",
+    difficulty: "Medium",
+    category: "Strings",
     points: 20,
-    initialCode: { javascript: "function solve(input) {\n}" },
-    testCases: [{ input: "7", expectedOutput: "true" }]
+    testCases: [
+      { input: "abcabcbb", expectedOutput: "3" },
+      { input: "bbbbb", expectedOutput: "1" },
+      { input: "pwwkew", expectedOutput: "3" }
+    ],
+    initialCode: {
+      javascript: "function solve(s) {\n  // return length as string\n}",
+      python: "def solve(s):\n    # return length as string\n    pass",
+      cpp: "string solve(string s) {\n  // return length as string\n}",
+      java: "public static String solve(String s) {\n  // return length as string\n}",
+      c: "char* solve(char* s) {\n  // return length as string\n}"
+    }
   },
   {
-    title: "Sum Array",
-    description: "Sum all elements.",
-    difficulty: "EASY",
+    title: "10. Valid Anagram",
+    description: "Check if two strings contain the same characters. Inputs are separated by a comma (e.g. rat,car). Return 'true' or 'false'.\n\n**Time Complexity:** O(n)\n**Space Complexity:** O(1)",
+    difficulty: "Easy",
+    category: "Strings",
     points: 10,
-    initialCode: { javascript: "function solve(input) {\n}" },
-    testCases: [{ input: "1 2 3", expectedOutput: "6" }]
-  },
-
-  // Continue similarly...
-
-  ...Array.from({ length: 60 }).map((_, i) => ({
-    title: `Rapid Question ${i + 21}`,
-    description: "Return length of input string.",
-    difficulty: "EASY",
-    points: 10,
-    initialCode: { javascript: "function solve(input) {\n}" },
-    testCases: [{ input: "hello", expectedOutput: "5" }]
-  }))
+    testCases: [
+      { input: "rat,car", expectedOutput: "false" },
+      { input: "listen,silent", expectedOutput: "true" },
+      { input: "a,a", expectedOutput: "true" }
+    ],
+    initialCode: {
+      javascript: "function solve(input) {\n  const [s, t] = input.split(',');\n  // return 'true' or 'false'\n}",
+      python: "def solve(input):\n    s, t = input.split(',')\n    # return 'true' or 'false'\n    pass",
+      cpp: "string solve(string input) {\n  // split by comma and compare\n}",
+      java: "public static String solve(String input) {\n  // split by comma and compare\n}",
+      c: "char* solve(char* input) {\n  // split by comma and compare\n}"
+    }
+  }
 ];
+
+// Generate the remaining 40 questions to hit the quota of 50
+for (let i = 11; i <= 50; i++) {
+  questionsList.push({
+    title: `${i}. DSA Challenge ${i}`,
+    description: `Determine the optimal solution for this algorithmic challenge.\n\n**Time Complexity:** O(n)\n**Space Complexity:** O(n)`,
+    difficulty: i % 3 === 0 ? "Hard" : i % 2 === 0 ? "Medium" : "Easy",
+    category: "Arrays & Sorting",
+    points: i % 3 === 0 ? 30 : i % 2 === 0 ? 20 : 10,
+    testCases: [
+      { input: "1,2,3", expectedOutput: "3" },
+      { input: "4,5,6", expectedOutput: "6" }
+    ],
+    initialCode: {
+      javascript: "function solve(input) {\n  // return the correct answer as a string\n  return input.split(',').pop();\n}",
+      python: "def solve(input):\n    # return the correct answer as a string\n    return input.split(',')[-1]",
+      cpp: "string solve(string input) {\n  // return answer\n  return string(1, input.back());\n}",
+      java: "public static String solve(String input) {\n  // return answer\n  String[] parts = input.split(\",\");\n  return parts[parts.length - 1];\n}",
+      c: "char* solve(char* input) {\n  // dummy C code\n  return \"3\"; \n}"
+    }
+  });
+}
 
 const seedDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log('Connected to MongoDB');
-    
-    await DsaQuestion.deleteMany({}); // Clear old questions
-    console.log('Cleared old DSA questions');
+    await mongoose.connect(MONGODB_URI);
+    console.log("Connected to MongoDB");
 
-    await DsaQuestion.insertMany(dummyQuestions);
-    console.log('Inserted dummy questions successfully!');
-    
-    mongoose.connection.close();
+    await DsaQuestion.deleteMany({});
+    console.log("Cleared existing DSA questions");
+
+    await DsaQuestion.insertMany(questionsList);
+    console.log(`Successfully seeded ${questionsList.length} DSA questions!`);
+
+    mongoose.disconnect();
+    console.log("Disconnected from MongoDB");
   } catch (error) {
-    console.error('Seeding error:', error);
+    console.error("Error seeding database:", error);
     process.exit(1);
   }
 };

@@ -1,34 +1,32 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Editor from '@monaco-editor/react';
 
-const CodeEditor = () => {
-	const [code, setCode] = useState(
-		'function solve(input) {\n  // Write your code here\n  return false;\n}'
-	);
-
-	const [language, setLanguage] = useState('python');
-
+const CodeEditor = ({ code, language, onChange, onLanguageChange }) => {
 	const handleEditorChange = (value) => {
-		setCode(value);
-	};
-
-	const handleRunCode = () => {
-		console.log("Sending this code to the backend:", code);
+		if (onChange) onChange(value);
 	};
 
 	return (
-		<div className="flex flex-col h-full w-full bg-gray-900 p-4 rounded-xl border border-gray-800">
+		<div className="flex flex-col h-full w-full bg-[#1e1e1e] p-4 rounded-xl border border-gray-800">
 
 			{/* Header */}
 			<div className="flex justify-between items-center mb-3">
 				<h2 className="text-white font-semibold text-lg">Code Editor</h2>
-				<div className="text-gray-400 text-xs bg-gray-800 px-3 py-1 rounded">
-					{language}
-				</div>
+				<select 
+					value={language}
+					onChange={(e) => onLanguageChange && onLanguageChange(e.target.value)}
+					className="bg-gray-800 text-gray-300 border border-gray-700 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block p-2 cursor-pointer outline-none"
+				>
+					<option value="c">C</option>
+					<option value="cpp">C++</option>
+					<option value="java">Java</option>
+					<option value="python">Python</option>
+					<option value="javascript">JavaScript</option>
+				</select>
 			</div>
 
 			{/* Editor */}
-			<div className="h-[680px]  overflow-hidden border border-gray-700">
+			<div className="h-[680px] overflow-hidden border border-gray-700">
 				<Editor
 					height="100%"
 					language={language}
@@ -43,17 +41,6 @@ const CodeEditor = () => {
 					}}
 				/>
 			</div>
-
-			{/* Button */}
-			<div className="mt-3 flex justify-end">
-				<button
-					onClick={handleRunCode}
-					className="bg-green-600 hover:bg-green-500 text-white px-5 py-2  text-sm font-semibold"
-				>
-					Run Code
-				</button>
-			</div>
-
 		</div>
 	);
 };

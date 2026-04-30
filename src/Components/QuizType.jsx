@@ -1,13 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 
-const QuizType = () => {
-  const [difficulty, setDifficulty] = useState('Medium');
-  const [time, setTime] = useState('15 Min');
-  const [questions, setQuestions] = useState('15');
-  const [langauge , setLanguage] = useState('');
-  const [ type , setType] = useState('MCQ');
+const QuizType = ({ quizConfig, setQuizConfig }) => {
+  const updateConfig = (key, value) => setQuizConfig({ ...quizConfig, [key]: value });
 
-  const renderSection = (title, options, selected, setter) => (
+  const renderSection = (title, options, selected, setterKey) => (
     <div className="mb-5">
       <h3 className="text-[12px] text-[#94a3b8] mb-2.5 uppercase tracking-[0.5px] font-bold">{title}</h3>
       <div className="grid grid-cols-3 gap-2.5">
@@ -15,7 +11,7 @@ const QuizType = () => {
           <button
             key={opt}
             className={`bg-[#1e293b] py-[12px] rounded text-[14px] font-bold cursor-pointer border-2 transition-all duration-200 hover:bg-[#334155] ${selected === opt ? 'text-white border-blue-500' : 'text-[#cbd5e1] border-transparent'}`}
-            onClick={() => setter(opt)}
+            onClick={() => updateConfig(setterKey, opt)}
           >
             {opt}
           </button>
@@ -31,11 +27,9 @@ const QuizType = () => {
         <h2 className="m-0 text-[18px]">Quiz Settings</h2>
       </div>
 
-      {renderSection('Difficulty', ['Easy', 'Medium', 'Hard'], difficulty, setDifficulty)}
-      {renderSection('Time', ['10 Min', '15 Min', '30 Min'], time, setTime)}
-      {renderSection('No. Questions', ['10', '15', '30'], questions, setQuestions)}
-      {renderSection('LANG', ['PYTHON', 'C++', 'JAVA SCRIPT' , 'JAVA'], langauge, setLanguage)}
-      {renderSection( 'TYPE' , [ 'MCQ' , 'CODE BOX'], type , setType)}
+      {renderSection('Difficulty', ['Easy', 'Medium', 'Hard'], quizConfig?.difficulty || 'Easy', 'difficulty')}
+      {renderSection('No. Questions', ['5', '10', '20'], quizConfig?.limit || '10', 'limit')}
+      {renderSection('Category', ['Linux', 'Programming', 'DevOps'], quizConfig?.category || 'Linux', 'category')}
     </div>
   );
 };

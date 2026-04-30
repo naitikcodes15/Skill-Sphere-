@@ -5,7 +5,7 @@ import Tournaments from "./Tournaments";
 import Sessions from "./Sessions";
 import Coders from "./Coders";
 
-const Sidebar = ({ setMode, setSelectedSessionId }) => {
+const Sidebar = ({ setMode, setSelectedSessionId, quizConfig, setQuizConfig }) => {
 	const [activeTab, setActiveTab] = useState("+ Code");
 	const [currentView, setCurrentView] = useState("main");
 	const [isExpanded, setIsExpanded] = useState(false);
@@ -45,13 +45,13 @@ const Sidebar = ({ setMode, setSelectedSessionId }) => {
 									onClick={() => setIsExpanded(!isExpanded)}
 								>
 									<div className="flex items-center gap-2">
-										<span>DSA</span> <span className="text-[#6b7280]">•</span> <span>15 Min</span> <span className="text-[#6b7280]">•</span> <span className="text-red-500">HARD</span>
+										<span>{quizConfig.category}</span> <span className="text-[#6b7280]">•</span> <span>{quizConfig.limit} Qs</span> <span className="text-[#6b7280]">•</span> <span className="text-red-500 uppercase">{quizConfig.difficulty}</span>
 									</div>
 									<div className={`transition-transform duration-300 ease-in text-[#989795] ${isExpanded ? "rotate-180" : ""}`}>▼</div>
 								</div>
 
 								<div className={`grid transition-all duration-300 ease-out overflow-hidden ${isExpanded ? "[grid-template-rows:1fr] opacity-100 visible" : "[grid-template-rows:0fr] opacity-0 invisible"}`}>
-									<div className="min-h-0 pb-[15px] px-5"><QuizType /></div>
+									<div className="min-h-0 pb-[15px] px-5"><QuizType quizConfig={quizConfig} setQuizConfig={setQuizConfig} /></div>
 								</div>
 
 								<div className="flex flex-col gap-3 p-5 mt-[10px]">

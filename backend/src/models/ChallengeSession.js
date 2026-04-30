@@ -10,6 +10,7 @@ const challengeSessionSchema = new mongoose.Schema({
     socketId: { type: String, required: true },
     userDetails: { type: Object },
     score: { type: Number, default: 0 },
+    currentIndex: { type: Number, default: 0 },
   }],
   status: {
     type: String,
@@ -20,6 +21,10 @@ const challengeSessionSchema = new mongoose.Schema({
     type: Object,
     default: null,
   },
+  questions: {
+    type: Array,
+    default: [],
+  }
 }, { timestamps: true });
 
 const ChallengeSession = mongoose.model('ChallengeSession', challengeSessionSchema);
