@@ -34,7 +34,7 @@ SkillSphere is a professional real-time 1v1 coding challenge platform designed f
 ### Installation
 
 1. Clone the repository:
-   git clone [repository-url]
+   git clone https://github.com/naitikcodes15/Skill-Sphere-
 
 2. Navigate to the project directory:
    cd SkillSphere
