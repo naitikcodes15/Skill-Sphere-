@@ -1,16 +1,67 @@
-# React + Vite
+# SkillSphere
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+SkillSphere is a professional real-time 1v1 coding challenge platform designed for competitive programming and skill assessment. The platform enables developers to engage in live coding battles, providing a synchronized environment for multiple programming languages.
 
-Currently, two official plugins are available:
+> [!CAUTION]
+> This project is currently in development. Certain features have been intentionally reserved for future implementation and may not be fully functional in the current version.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Core Features
 
-## React Compiler
+- Real-time 1v1 competitive coding arena.
+- Multi-language support including C, C++, Java, Python, and JavaScript.
+- Seamless code synchronization between participants.
+- Real-time opponent activity tracking and status updates.
+- Integrated high-performance code editor powered by Monaco.
+- Robust challenge management and skip functionality.
+- Professional DSA question database with categorized difficulty levels.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the ESLint configuration
+- Frontend: React 19, Vite, TailwindCSS, Styled-components.
+- Backend: Node.js, Firebase (Firestore, Authentication), Socket.io.
+- Editor: Monaco Editor.
+- State Management and Routing: React Router, React Context API.
+- Communication: Socket.io for real-time bidirectional events.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Getting Started
+
+### Prerequisites
+
+- Node.js (Latest LTS recommended)
+- npm or yarn
+- Firebase account for database and authentication setup
+
+### Installation
+
+1. Clone the repository:
+   git clone [repository-url]
+
+2. Navigate to the project directory:
+   cd SkillSphere
+
+3. Install dependencies:
+   npm install
+
+4. Configure environment variables:
+   Create a .env file in the root directory and add your Firebase and API configurations.
+
+### Running Locally
+
+To start the development server:
+npm run dev
+
+The application will be available at http://localhost:5173.
+
+## Project Structure
+
+- /src: Frontend source code, including components, pages, and context.
+- /backend: Backend services and configurations.
+- /public: Static assets and public resources.
+
+## Development Status
+
+The project is actively being developed to include advanced features such as:
+- Enhanced anti-cheat mechanisms.
+- Expanded problem sets and custom challenge creation.
+- Detailed performance analytics for participants.
+- Tournament mode and global leaderboards.
