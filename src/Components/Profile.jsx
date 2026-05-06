@@ -38,6 +38,11 @@ const Profile = () => {
     e.preventDefault();
     const user = auth.currentUser;
     
+    if (!user) {
+      alert("⚠️ Dev Bypass Mode: Profile data cannot be saved to the database without a real Google Login.");
+      return;
+    }
+
     if (user) {
       try {
         await setDoc(doc(db, "users", user.uid), formData);

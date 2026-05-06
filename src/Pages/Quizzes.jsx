@@ -12,7 +12,7 @@ export default function Quizzes() {
 	const [quizConfig, setQuizConfig] = useState({
 		difficulty: 'Medium',
 		limit: '10',
-		category: 'Linux'
+		category: 'DevOps'
 	});
 
 	return (

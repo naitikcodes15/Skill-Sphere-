@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Session from '../models/Question.js';
 
 const quizApi = axios.create({
 	baseURL: process.env.QUIZ_API_BASE_URL || 'https://quizapi.io/api/v1'
@@ -9,6 +10,21 @@ quizApi.interceptors.request.use(config => {
 	return config;
 });
 
+const transformAnswers = (answers, correct_answers) => {
+    if (!answers) return [];
+    if (Array.isArray(answers)) return answers;
+    const result = [];
+    Object.keys(answers).forEach(key => {
+        if (answers[key]) {
+            result.push({
+                id: key,
+                text: answers[key],
+                isCorrect: correct_answers ? (correct_answers[`${key}_correct`] === 'true' || correct_answers[`${key}_correct`] === true) : false
+            });
+        }
+    });
+    return result;
+};
 
 export const getQuestionsFromAPI = async (req, res) => {
 	try {
@@ -22,7 +38,6 @@ export const getQuestionsFromAPI = async (req, res) => {
 
 export const startPracticeSession = async (req, res) => {
 	try {
-		// 1. Fetch questions from QuizAPI based on filters provided in the request body OR query parameters
 		const category = req.body?.category || req.query?.category;
 		const difficulty = req.body?.difficulty || req.query?.difficulty;
 		const tags = req.body?.tags || req.query?.tags;
@@ -35,13 +50,25 @@ export const startPracticeSession = async (req, res) => {
 		if (limit) params.limit = limit;
 
 		const response = await quizApi.get('/questions', { params });
-		const questionsData = response.data.data; // Note API response format: { success: true, data: [...] }
+		const rawQuestions = Array.isArray(response.data) ? response.data : (response.data.data || []);
 
-		if (!questionsData || questionsData.length === 0) {
-			return res.status(404).json({ success: false, message: 'No questions found for the given criteria.' });
+		if (!rawQuestions || rawQuestions.length === 0) {
+			return res.status(200).json({ success: false, message: 'No questions found for the given criteria. Try a different category or difficulty.' });
 		}
 
-		// 2. Create a new Session in MongoDB
+		// Transform format to internal Session model format
+		const questionsData = rawQuestions.map(q => {
+			return {
+				id: String(q.id || q._id),
+				text: q.question || q.text,
+				type: q.type,
+				difficulty: q.difficulty,
+				explanation: q.explanation,
+				category: q.category,
+				answers: transformAnswers(q.answers, q.correct_answers)
+			};
+		});
+
 		const newSession = new Session({
 			sessionType: 'practice',
 			status: 'in-progress',
@@ -50,12 +77,8 @@ export const startPracticeSession = async (req, res) => {
 			score: 0
 		});
 
-
 		const savedSession = await newSession.save();
 
-		// 3. Return the session to the client, but omit correct answers so user can't cheat initially
-		// Since this is for testing via Postman, we can choose to return the raw data or a sanitized version.
-		// For now, let's sanitize the correct answers to mimic real production behavior.
 		const sanitizedQuestions = savedSession.questions.map(q => {
 			const qObj = q.toObject();
 			if (qObj.answers) {
@@ -84,7 +107,6 @@ export const getSession = async (req, res) => {
 			return res.status(404).json({ success: false, message: 'Session not found' });
 		}
 
-		// If session is still in-progress, we probably shouldn't show correct answers yet
 		if (session.status === 'in-progress') {
 			const sanitizedQuestions = session.questions.map(q => {
 				const qObj = q.toObject();
@@ -99,17 +121,17 @@ export const getSession = async (req, res) => {
 			});
 		}
 
-		// Completed session, return everything so user can review their performance
 		res.status(200).json({ success: true, session });
 	} catch (error) {
 		console.error("Error fetching session:", error);
 		res.status(500).json({ success: false, message: 'Failed to fetch session' });
 	}
 };
+
 export const submitSessionAnswers = async (req, res) => {
 	try {
 		const { id } = req.params;
-		const { userAnswers } = req.body || {}; // Expected format: { "ques_id1": "ans_id1", "ques_id2": "ans_id2" }
+		const { userAnswers } = req.body || {}; 
 
 		if (!userAnswers || typeof userAnswers !== 'object') {
 			return res.status(400).json({ success: false, message: 'Invalid userAnswers provided. Expected a key-value map.' });
@@ -126,17 +148,14 @@ export const submitSessionAnswers = async (req, res) => {
 
 		let score = 0;
 
-		// Calculate the score
 		session.questions.forEach(question => {
 			const submittedAnswerId = userAnswers[question.id];
 			if (submittedAnswerId) {
-				// Save the answer in the session
 				session.userAnswers.set(question.id, submittedAnswerId);
 
-				// Find if this answer is correct
 				const correctAnswer = question.answers.find(a => a.isCorrect);
 				if (correctAnswer && correctAnswer.id === submittedAnswerId) {
-					score += 1; // Assuming 1 point per correct answer, this can be weighted by difficulty
+					score += 1;
 				}
 			}
 		});
@@ -151,7 +170,7 @@ export const submitSessionAnswers = async (req, res) => {
 			message: 'Session submitted successfully',
 			score: updatedSession.score,
 			totalQuestions: updatedSession.questions.length,
-			session: updatedSession // Returns the full object with correct answers for review
+			session: updatedSession 
 		});
 
 	} catch (error) {

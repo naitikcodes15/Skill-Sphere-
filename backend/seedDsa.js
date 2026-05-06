@@ -2,14 +2,14 @@ import mongoose from 'mongoose';
 import "dotenv/config";
 import DsaQuestion from './src/models/DsaQuestion.js';
 
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/skillsphere";
+const MONGODB_URI = process.env.MONGO_URI || process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/skillsphere";
 
 const questionsList = [
   // Category 1: Basic Math & Logic
   {
     title: "1. Palindrome Number",
     description: "Check if an integer is a palindrome. Return 'true' or 'false'.\n\n**Time Complexity:** O(log10 n)\n**Space Complexity:** O(1)",
-    difficulty: "Easy",
+    difficulty: "EASY",
     category: "Math",
     points: 10,
     testCases: [
@@ -28,7 +28,7 @@ const questionsList = [
   {
     title: "2. Armstrong Number",
     description: "Check if the sum of the cubes of the digits equals the number itself.\n\n**Time Complexity:** O(log10 n)\n**Space Complexity:** O(1)",
-    difficulty: "Easy",
+    difficulty: "EASY",
     category: "Math",
     points: 10,
     testCases: [
@@ -47,7 +47,7 @@ const questionsList = [
   {
     title: "3. Prime Number Check",
     description: "Determine if a number is prime. Return 'true' or 'false'.\n\n**Time Complexity:** O(√n)\n**Space Complexity:** O(1)",
-    difficulty: "Easy",
+    difficulty: "EASY",
     category: "Math",
     points: 10,
     testCases: [
@@ -66,7 +66,7 @@ const questionsList = [
   {
     title: "4. Factorial of a Number",
     description: "Calculate the factorial of n (n!). Return the result as a string.\n\n**Time Complexity:** O(n)\n**Space Complexity:** O(1)",
-    difficulty: "Easy",
+    difficulty: "EASY",
     category: "Math",
     points: 10,
     testCases: [
@@ -85,7 +85,7 @@ const questionsList = [
   {
     title: "5. Fibonacci Series",
     description: "Return the n-th number in the Fibonacci sequence. (Assume 0-th is 0, 1-st is 1)\n\n**Time Complexity:** O(n)\n**Space Complexity:** O(1)",
-    difficulty: "Easy",
+    difficulty: "EASY",
     category: "Math",
     points: 10,
     testCases: [
@@ -106,7 +106,7 @@ const questionsList = [
   {
     title: "6. Return Length of String",
     description: "Return the total character count of the given string as a string.\n\n**Time Complexity:** O(1)\n**Space Complexity:** O(1)",
-    difficulty: "Easy",
+    difficulty: "EASY",
     category: "Strings",
     points: 10,
     testCases: [
@@ -125,7 +125,7 @@ const questionsList = [
   {
     title: "7. Reverse a String",
     description: "Reverse the characters in the string in place.\n\n**Time Complexity:** O(n)\n**Space Complexity:** O(n)",
-    difficulty: "Easy",
+    difficulty: "EASY",
     category: "Strings",
     points: 10,
     testCases: [
@@ -144,7 +144,7 @@ const questionsList = [
   {
     title: "8. Sentence Palindrome",
     description: "Check palindrome status ignoring case and non-alphanumeric characters. Return 'true' or 'false'.\n\n**Time Complexity:** O(n)\n**Space Complexity:** O(n)",
-    difficulty: "Medium",
+    difficulty: "MEDIUM",
     category: "Strings",
     points: 20,
     testCases: [
@@ -163,7 +163,7 @@ const questionsList = [
   {
     title: "9. Longest Substring Without Repeating",
     description: "Find the length of the longest substring with unique characters. Return as string.\n\n**Time Complexity:** O(n)\n**Space Complexity:** O(min(n, m))",
-    difficulty: "Medium",
+    difficulty: "MEDIUM",
     category: "Strings",
     points: 20,
     testCases: [
@@ -182,7 +182,7 @@ const questionsList = [
   {
     title: "10. Valid Anagram",
     description: "Check if two strings contain the same characters. Inputs are separated by a comma (e.g. rat,car). Return 'true' or 'false'.\n\n**Time Complexity:** O(n)\n**Space Complexity:** O(1)",
-    difficulty: "Easy",
+    difficulty: "EASY",
     category: "Strings",
     points: 10,
     testCases: [
@@ -205,7 +205,7 @@ for (let i = 11; i <= 50; i++) {
   questionsList.push({
     title: `${i}. DSA Challenge ${i}`,
     description: `Determine the optimal solution for this algorithmic challenge.\n\n**Time Complexity:** O(n)\n**Space Complexity:** O(n)`,
-    difficulty: i % 3 === 0 ? "Hard" : i % 2 === 0 ? "Medium" : "Easy",
+    difficulty: i % 3 === 0 ? "HARD" : i % 2 === 0 ? "MEDIUM" : "EASY",
     category: "Arrays & Sorting",
     points: i % 3 === 0 ? 30 : i % 2 === 0 ? 20 : 10,
     testCases: [

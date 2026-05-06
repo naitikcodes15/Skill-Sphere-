@@ -94,7 +94,17 @@ const Practice = ({ setMode, quizConfig }) => {
     };
 
     if (error) {
-        return <div className="flex-1 h-full bg-[#121212] text-white p-8 flex flex-col items-center justify-center gap-6 text-red-500 font-bold">{error}</div>;
+        return (
+            <div className="flex-1 h-full bg-[#121212] text-white p-8 flex flex-col items-center justify-center gap-6">
+                <p className="text-red-500 font-bold text-xl">{error}</p>
+                <button 
+                    onClick={() => setMode("main")} 
+                    className="mt-4 px-8 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-bold shadow-lg shadow-blue-600/20 transition-all"
+                >
+                    BACK TO SELECTION
+                </button>
+            </div>
+        );
     }
 
     if (questions.length === 0) {

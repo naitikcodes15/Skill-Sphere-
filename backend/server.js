@@ -105,11 +105,16 @@ io.on("connection", (socket) => {
       if (challenge && challenge.status === 'ready') {
         // Fetch 10 random DSA questions
         const questions = await DsaQuestion.aggregate([{ $sample: { size: 10 } }]);
-        challenge.questions = questions;
-        challenge.status = 'started';
-        await challenge.save();
-        io.to(challengeId).emit("challenge_state", challenge);
-        io.to(challengeId).emit("challenge_started", challenge);
+        if (questions && questions.length > 0) {
+          challenge.questions = questions;
+          challenge.status = 'started';
+          await challenge.save();
+          io.to(challengeId).emit("challenge_state", challenge);
+          io.to(challengeId).emit("challenge_started", challenge);
+        } else {
+          console.error("No questions found to start challenge");
+          socket.emit("error", { message: "Failed to fetch questions. Please try again." });
+        }
       }
     } catch(err) { console.error(err); }
   });
@@ -282,7 +287,8 @@ ${executableCode}
 ${executableCode}
 
 int main() {
-    printf("%s\\n", ${funcName}((char*)${JSON.stringify(testCase.input)}));
+    char* result = ${funcName}((char*)${JSON.stringify(testCase.input)});
+    if (result) printf("%s\\n", result);
     return 0;
 }
 `;
