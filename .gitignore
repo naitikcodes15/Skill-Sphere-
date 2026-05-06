@@ -1,3 +1,16 @@
 node_modules/
 .env
 .DS_Store
+.vscode/
+.firebase/
+*.json
+!package.json
+!package-lock.json
+!firebase.json
+!firestore.indexes.json
+serviceAccountKey.json
+temp.cpp
+test_*.js
+test_*.py
+test_*.cjs
+*.log
