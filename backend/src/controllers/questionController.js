@@ -1,5 +1,6 @@
 import axios from 'axios';
 import Session from '../models/Question.js';
+import { localQuestions } from '../data/localQuestions.js';
 
 const quizApi = axios.create({
 	baseURL: process.env.QUIZ_API_BASE_URL || 'https://quizapi.io/api/v1'
@@ -31,8 +32,8 @@ export const getQuestionsFromAPI = async (req, res) => {
 		const response = await quizApi.get('/questions', { params: req.query });
 		res.status(200).json(response.data);
 	} catch (error) {
-		console.error("Error fetching questions from QuizAPI:", error.response ? error.response.data : error.message);
-		res.status(500).json({ success: false, message: 'Failed to fetch questions from API' });
+		console.warn("Error fetching questions from QuizAPI, falling back to local:", error.message);
+		res.status(200).json(localQuestions);
 	}
 };
 
@@ -49,8 +50,22 @@ export const startPracticeSession = async (req, res) => {
 		if (tags) params.tags = tags;
 		if (limit) params.limit = limit;
 
-		const response = await quizApi.get('/questions', { params });
-		const rawQuestions = Array.isArray(response.data) ? response.data : (response.data.data || []);
+		let rawQuestions = [];
+		try {
+			const response = await quizApi.get('/questions', { params });
+			rawQuestions = Array.isArray(response.data) ? response.data : (response.data.data || []);
+		} catch (apiError) {
+			console.warn("QuizAPI request failed, falling back to local quiz questions:", apiError.message);
+			// Filter local questions by category/difficulty if specified
+			rawQuestions = localQuestions.filter(q => {
+				if (category && q.category.toLowerCase() !== category.toLowerCase()) return false;
+				return true;
+			});
+			if (rawQuestions.length === 0) {
+				rawQuestions = localQuestions;
+			}
+			rawQuestions = rawQuestions.slice(0, limit);
+		}
 
 		if (!rawQuestions || rawQuestions.length === 0) {
 			return res.status(200).json({ success: false, message: 'No questions found for the given criteria. Try a different category or difficulty.' });

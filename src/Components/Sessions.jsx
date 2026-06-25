@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { auth } from "../firebase";
+import { BACKEND_URL } from "../utils/api";
 
 const Sessions = ({ setSelectedSessionId, setMode }) => {
     const [sessions, setSessions] = useState([]); 
@@ -16,7 +17,7 @@ const Sessions = ({ setSelectedSessionId, setMode }) => {
                 }
                 const userName = user.displayName || user.email?.split('@')[0] || "Player";
                 
-                const res = await fetch(`http://localhost:5000/api/sessions?userId=${encodeURIComponent(userName)}`);
+                const res = await fetch(`${BACKEND_URL}/api/sessions?userId=${encodeURIComponent(userName)}`);
                 const data = await res.json();
                 setSessions(Array.isArray(data) ? data : []);
             } catch (err) {

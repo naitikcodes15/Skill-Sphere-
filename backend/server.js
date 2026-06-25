@@ -1,7 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import admin from "firebase-admin";
+import admin from "./src/config/firebase-config.js";
 import http from "http";
 import { Server } from "socket.io";
 import axios from "axios";
@@ -17,27 +17,21 @@ import { connectDB } from "./src/config/db.js";
 import questionRoutes from "./src/routes/questionRoutes.js";
 import challengeRoutes from './src/routes/challengeRoutes.js';
 
-import serviceAccount from './serviceAccountKey.json' with { type: 'json' };
+const frontendOrigin = process.env.FRONTEND_URL || "http://localhost:5173";
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: frontendOrigin,
     credentials: true,
   }
 });
 
 connectDB();
 
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-  });
-}
-
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: frontendOrigin,
     credentials: true,
 }));
 

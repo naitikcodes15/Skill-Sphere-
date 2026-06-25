@@ -5,10 +5,12 @@ import Tournaments from "./Tournaments";
 import Sessions from "./Sessions";
 import Coders from "./Coders";
 
-const Sidebar = ({ setMode, setSelectedSessionId, quizConfig, setQuizConfig }) => {
+const Sidebar = ({ mode, setMode, setSelectedSessionId, quizConfig, setQuizConfig }) => {
 	const [activeTab, setActiveTab] = useState("+ Code");
 	const [currentView, setCurrentView] = useState("main");
 	const [isExpanded, setIsExpanded] = useState(false);
+
+	const isSessionActive = mode !== "main";
 
 	return (
 		<div className="w-[30vw] h-full bg-[#121212] border-l border-[#2a2a2a] flex flex-col font-sans text-white box-border">
@@ -21,6 +23,10 @@ const Sidebar = ({ setMode, setSelectedSessionId, quizConfig, setQuizConfig }) =
 							: "text-[#888888] border-transparent hover:text-[#e0e0e0]"
 							}`}
 						onClick={() => {
+							if (isSessionActive) {
+								alert("Please complete or quit the active session before switching tabs.");
+								return;
+							}
 							setActiveTab(tab);
 							setCurrentView("main");
 						}}
@@ -41,36 +47,55 @@ const Sidebar = ({ setMode, setSelectedSessionId, quizConfig, setQuizConfig }) =
 							<div className="main-code-view">
 
 								<div
-									className="flex justify-between items-center bg-[#1f2937] h-[50px] mx-5 my-[15px] rounded px-4 text-base font-bold tracking-[0.5px] cursor-pointer transition-all duration-300 hover:bg-[#374151]"
-									onClick={() => setIsExpanded(!isExpanded)}
+									className={`flex justify-between items-center h-[50px] mx-5 my-[15px] rounded px-4 text-base font-bold tracking-[0.5px] transition-all duration-300 ${isSessionActive ? "bg-[#1f2937]/50 opacity-65 cursor-not-allowed" : "bg-[#1f2937] cursor-pointer hover:bg-[#374151]"}`}
+									onClick={() => {
+										if (isSessionActive) return;
+										setIsExpanded(!isExpanded);
+									}}
 								>
 									<div className="flex items-center gap-2">
 										<span>{quizConfig.category}</span> <span className="text-[#6b7280]">•</span> <span>{quizConfig.limit} Qs</span> <span className="text-[#6b7280]">•</span> <span className="text-red-500 uppercase">{quizConfig.difficulty}</span>
+										{isSessionActive && <span className="text-xs text-gray-500 italic ml-2">(Locked)</span>}
 									</div>
-									<div className={`transition-transform duration-300 ease-in text-[#989795] ${isExpanded ? "rotate-180" : ""}`}>▼</div>
+									{!isSessionActive && <div className={`transition-transform duration-300 ease-in text-[#989795] ${isExpanded ? "rotate-180" : ""}`}>▼</div>}
 								</div>
 
-								<div className={`grid transition-all duration-300 ease-out overflow-hidden ${isExpanded ? "[grid-template-rows:1fr] opacity-100 visible" : "[grid-template-rows:0fr] opacity-0 invisible"}`}>
-									<div className="min-h-0 pb-[15px] px-5"><QuizType quizConfig={quizConfig} setQuizConfig={setQuizConfig} /></div>
+								<div className={`grid transition-all duration-300 ease-out overflow-hidden ${isExpanded && !isSessionActive ? "[grid-template-rows:1fr] opacity-100 visible" : "[grid-template-rows:0fr] opacity-0 invisible"}`}>
+									<div className="min-h-0 pb-[15px] px-5"><QuizType quizConfig={quizConfig} setQuizConfig={setQuizConfig} disabled={isSessionActive} /></div>
 								</div>
 
 								<div className="flex flex-col gap-3 p-5 mt-[10px]">
-									<button onClick={() => setMode("practice")} className="w-full p-[14px] rounded-md text-sm font-bold tracking-[1px] cursor-pointer border-none transition-transform duration-100 ease-in active:scale-[0.98] bg-blue-600 text-white shadow-[0_4px_14px_rgba(37,99,235,0.3)] hover:bg-blue-700">START QUIZ</button>
-									<button
-										className="w-full p-[14px] rounded-md text-sm font-bold tracking-[1px] cursor-pointer transition-transform duration-100 ease-in active:scale-[0.98] bg-[#2a2a2a] text-white hover:bg-[#333333] border-none"
-										onClick={() => {
-											setMode("challenge"); // Start 1v1 challenge
-										}}
-									>
-										1V1 CHALLENGE
-									</button>
-									<button onClick={() => alert('Future scope')} className="w-full p-[14px] rounded-md text-sm font-bold tracking-[1px] cursor-pointer transition-transform duration-100 ease-in active:scale-[0.98] bg-[#2a2a2a] text-white hover:bg-[#333333] border-none">CODE A FRIEND</button>
-									<button
-										className="w-full p-[14px] rounded-md text-sm font-bold tracking-[1px] cursor-pointer transition-all duration-100 ease-in active:scale-[0.98] bg-transparent border border-[#444444] text-[#a3a3a3] hover:border-white hover:text-white"
-										onClick={() => alert('Future scope')}
-									>
-										TOURNAMENTS
-									</button>
+									{isSessionActive ? (
+										<button
+											onClick={() => {
+												if (confirm("Are you sure you want to quit the active session? Your progress will not be saved.")) {
+													setMode("main");
+												}
+											}}
+											className="w-full p-[14px] rounded-md text-sm font-bold tracking-[1px] cursor-pointer border-none transition-transform duration-100 ease-in active:scale-[0.98] bg-red-600 text-white shadow-[0_4px_14px_rgba(220,38,38,0.3)] hover:bg-red-700"
+										>
+											QUIT SESSION
+										</button>
+									) : (
+										<>
+											<button onClick={() => setMode("practice")} className="w-full p-[14px] rounded-md text-sm font-bold tracking-[1px] cursor-pointer border-none transition-transform duration-100 ease-in active:scale-[0.98] bg-blue-600 text-white shadow-[0_4px_14px_rgba(37,99,235,0.3)] hover:bg-blue-700">START QUIZ</button>
+											<button
+												className="w-full p-[14px] rounded-md text-sm font-bold tracking-[1px] cursor-pointer transition-transform duration-100 ease-in active:scale-[0.98] bg-[#2a2a2a] text-white hover:bg-[#333333] border-none"
+												onClick={() => {
+													setMode("challenge");
+												}}
+											>
+												1V1 CHALLENGE
+											</button>
+											<button onClick={() => alert('Future scope')} className="w-full p-[14px] rounded-md text-sm font-bold tracking-[1px] cursor-pointer transition-transform duration-100 ease-in active:scale-[0.98] bg-[#2a2a2a] text-white hover:bg-[#333333] border-none">CODE A FRIEND</button>
+											<button
+												className="w-full p-[14px] rounded-md text-sm font-bold tracking-[1px] cursor-pointer transition-all duration-100 ease-in active:scale-[0.98] bg-transparent border border-[#444444] text-[#a3a3a3] hover:border-white hover:text-white"
+												onClick={() => alert('Future scope')}
+											>
+												TOURNAMENTS
+											</button>
+										</>
+									)}
 								</div>
 							</div>
 						) : (

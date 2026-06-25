@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { BACKEND_URL } from "../utils/api";
 
 const Practice = ({ setMode, quizConfig }) => {
     const [questions, setQuestions] = useState([]);
@@ -12,7 +13,7 @@ const Practice = ({ setMode, quizConfig }) => {
 
     const fetchQuestions = async () => {
         try {
-            const res = await fetch("http://localhost:5000/api/quiz/session", {
+            const res = await fetch(`${BACKEND_URL}/api/quiz/session`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -43,7 +44,7 @@ const Practice = ({ setMode, quizConfig }) => {
         if (!sessionId) return;
         
         try {
-            const res = await fetch(`http://localhost:5000/api/quiz/session/${sessionId}/submit`, {
+            const res = await fetch(`${BACKEND_URL}/api/quiz/session/${sessionId}/submit`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -157,7 +158,7 @@ const Practice = ({ setMode, quizConfig }) => {
             </div>
 
             <div className="bg-[#1f2937] p-6 rounded-xl mb-6 border border-gray-800 overflow-y-auto leading-relaxed text-gray-100 flex-shrink-0 shadow-inner">
-                <h1 className="text-xl font-bold mb-4">{currentQ.question || currentQ.title}</h1>
+                <h1 className="text-xl font-bold mb-4">{currentQ.text || currentQ.question || currentQ.title}</h1>
                 {currentQ.description && <p className="text-base text-gray-400 mb-3">{currentQ.description}</p>}
                 
                 {currentQ.data?.text && (

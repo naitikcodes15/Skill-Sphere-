@@ -1,4 +1,6 @@
-const API_URL = "http://localhost:5000/api/questions";
+import { BACKEND_URL } from "../utils/api";
+
+const API_URL = `${BACKEND_URL}/api/questions`;
 
 export const fetchPracticeQuestions = async () => {
   const response = await fetch(`${API_URL}/practice`);

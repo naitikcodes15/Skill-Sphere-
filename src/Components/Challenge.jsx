@@ -3,8 +3,9 @@ import { io } from "socket.io-client";
 import { useBlocker, useNavigate } from "react-router-dom";
 import CodeEditor from "./CodeEditor";
 import { auth } from "../firebase";
+import { BACKEND_URL } from "../utils/api";
 
-const socket = io("http://localhost:5000", { withCredentials: true });
+const socket = io(BACKEND_URL, { withCredentials: true });
 
 export default function Challenge() {
 	const navigate = useNavigate();

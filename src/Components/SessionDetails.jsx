@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { BACKEND_URL } from "../utils/api";
 
 const SessionDetails = ({ sessionId, setMode }) => {
     const [session, setSession] = useState(null);
@@ -6,9 +7,15 @@ const SessionDetails = ({ sessionId, setMode }) => {
 
     useEffect(() => {
         if (!sessionId) return;
-        fetch(`http://localhost:5000/api/session/${sessionId}`)
+        fetch(`${BACKEND_URL}/api/quiz/session/${sessionId}`)
             .then(res => res.json())
-            .then(data => setSession(data))
+            .then(data => {
+                if (data.success && data.session) {
+                    setSession(data.session);
+                } else {
+                    setSession(data);
+                }
+            })
             .catch(err => console.error("Error fetching session:", err));
     }, [sessionId]);
 
@@ -26,6 +33,16 @@ const SessionDetails = ({ sessionId, setMode }) => {
     // Naming aligned with your Database Schema ("questions")
     const currentAnswerRecord = session.questions[currentIndex];
     const totalQuestions = session.questions.length;
+
+    // Derive answers dynamically
+    const userAnswersMap = session.userAnswers || {};
+    const selectedAnswerId = typeof userAnswersMap.get === 'function' ? userAnswersMap.get(currentAnswerRecord.id) : userAnswersMap[currentAnswerRecord.id];
+    const selectedOpt = currentAnswerRecord.answers?.find(a => a.id === selectedAnswerId);
+    const selectedAnswerText = selectedOpt ? selectedOpt.text : "SKIPPED";
+
+    const correctOpt = currentAnswerRecord.answers?.find(a => a.isCorrect);
+    const correctAnswerText = correctOpt ? correctOpt.text : "";
+    const isCorrect = selectedAnswerId && correctOpt && selectedAnswerId === correctOpt.id;
 
     return (
         <div className="flex-1 h-full bg-[#121212] text-white p-8 flex flex-col font-sans overflow-y-auto">
@@ -46,9 +63,9 @@ const SessionDetails = ({ sessionId, setMode }) => {
             {/* Question Card */}
             <div className="bg-[#1f2937] p-6 rounded border-l-4 border-blue-500 mb-8 shadow-xl">
                 <span className="text-xs text-blue-400 font-bold uppercase tracking-widest">Question {currentIndex + 1}</span>
-                {/* Ensure property matches snapshot: 'title' or 'question' */}
+                {/* Ensure property matches snapshot: 'text', 'title', or 'question' */}
                 <h2 className="text-xl mt-3 font-medium leading-relaxed">
-                    {currentAnswerRecord.title || currentAnswerRecord.question}
+                    {currentAnswerRecord.text || currentAnswerRecord.question || currentAnswerRecord.title}
                 </h2>
                 {currentAnswerRecord.description && (
                     <p className="text-gray-400 text-sm mt-2 italic">{currentAnswerRecord.description}</p>
@@ -58,13 +75,13 @@ const SessionDetails = ({ sessionId, setMode }) => {
             {/* Comparison View */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
                 {/* User's Choice */}
-                <div className={`p-6 rounded border transition-all ${currentAnswerRecord.isCorrect ? 'border-green-500/50 bg-green-500/5' : 'border-red-500/50 bg-red-500/5'}`}>
+                <div className={`p-6 rounded border transition-all ${isCorrect ? 'border-green-500/50 bg-green-500/5' : 'border-red-500/50 bg-red-500/5'}`}>
                     <span className="text-[10px] uppercase font-black tracking-widest opacity-50 mb-2 block">Your Selection</span>
-                    <p className={`text-lg font-bold ${currentAnswerRecord.isCorrect ? 'text-green-400' : 'text-red-400'}`}>
-                        {currentAnswerRecord.selected || "SKIPPED"}
+                    <p className={`text-lg font-bold ${isCorrect ? 'text-green-400' : 'text-red-400'}`}>
+                        {selectedAnswerText}
                     </p>
                     <div className="mt-3">
-                        {currentAnswerRecord.isCorrect ? 
+                        {isCorrect ? 
                             <span className="text-[10px] bg-green-500/20 text-green-500 px-2 py-1 rounded font-bold">CORRECT</span> : 
                             <span className="text-[10px] bg-red-500/20 text-red-500 px-2 py-1 rounded font-bold">INCORRECT</span>
                         }
@@ -72,11 +89,11 @@ const SessionDetails = ({ sessionId, setMode }) => {
                 </div>
 
                 {/* Correct Choice (Only show if user was wrong) */}
-                {!currentAnswerRecord.isCorrect && (
+                {!isCorrect && (
                     <div className="p-6 rounded border border-green-500/30 bg-green-500/5">
                         <span className="text-[10px] uppercase font-black tracking-widest text-green-500/60 mb-2 block">Correct Answer</span>
                         <p className="text-lg font-bold text-green-400">
-                            {currentAnswerRecord.correctAnswer}
+                            {correctAnswerText}
                         </p>
                         <div className="mt-3">
                             <span className="text-[10px] bg-green-500/20 text-green-500 px-2 py-1 rounded font-bold">REQUIRED</span>

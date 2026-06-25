@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import { BACKEND_URL } from "../utils/api";
 
 const ChallengeCard = ({ setMode }) => {
 
@@ -20,7 +21,7 @@ const ChallengeCard = ({ setMode }) => {
 				return;
 			}
 			const payload = { userId: currentUser.uid };
-			const response = await axios.post('http://localhost:5000/api/challenge/create', payload);
+			const response = await axios.post(`${BACKEND_URL}/api/challenge/create`, payload);
 			const codeFromServer = response.data.joinCode;
 			console.log(codeFromServer);
 			setJoinCode(codeFromServer);
@@ -40,7 +41,7 @@ const ChallengeCard = ({ setMode }) => {
 				return;
 			}
 			const payload = { userId: currentUser.uid };
-			const response = await axios.post('http://localhost:5000/api/challenge/${joinCode}/join', payload);
+			const response = await axios.post(`${BACKEND_URL}/api/challenge/${joinCode}/join`, payload);
 
 		}
 		catch (error) {

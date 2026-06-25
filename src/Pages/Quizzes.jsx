@@ -23,8 +23,8 @@ export default function Quizzes() {
 			{mode === "quest" && <QuestArena />}
 			{mode === "challenge" && <Challenge setMode={setMode} />}
 
-			{mode === "session" && selectedSessionId && (<SessionDetails sessionId={selectedSessionId} />)}
-			<Sidebar setMode={setMode} setSelectedSessionId={setSelectedSessionId} quizConfig={quizConfig} setQuizConfig={setQuizConfig} />
+			{mode === "session" && selectedSessionId && (<SessionDetails sessionId={selectedSessionId} setMode={setMode} />)}
+			<Sidebar mode={mode} setMode={setMode} setSelectedSessionId={setSelectedSessionId} quizConfig={quizConfig} setQuizConfig={setQuizConfig} />
 		</div>
 	)
 }
