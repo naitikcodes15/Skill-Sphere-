@@ -11,7 +11,7 @@ const SignupCard = () => {
     <div className="flex justify-center items-center min-h-screen w-screen bg-[#121212] font-sans">
       <div className="bg-[#181818] p-10 rounded-[20px] shadow-[0_10px_25px_rgba(0,0,0,0.5)] w-full max-w-[400px] text-center border border-[#2a2a2a]">
         <header>
-          <h1 className="text-[#e67e22] text-[1.8rem] font-extrabold m-0 tracking-[1px]">ALOO BHUJIYA CODER</h1>
+          <h1 className="text-[#00f2fe] text-[1.8rem] font-extrabold m-0 tracking-[1px]">SKILLSPHERE CODER</h1>
           <p className="text-[#7f8c8d] text-[0.95rem] mt-2 font-medium">Learn • Grow • Enjoy</p>
         </header>
 
@@ -27,7 +27,7 @@ const SignupCard = () => {
         </button>
 
         <footer className="mt-6 text-[#bdc3c7] text-[0.8rem]">
-          <p>Join the community of snack-loving coders.</p>
+          <p>Join the community of skilled coders.</p>
         </footer>
       </div>
     </div>

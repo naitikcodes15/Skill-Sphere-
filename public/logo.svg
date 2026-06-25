@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <!-- Background glow filter -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    <!-- Gradient for the sphere -->
+    <linearGradient id="sphereGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f2fe" />
+      <stop offset="100%" stop-color="#4facfe" />
+    </linearGradient>
+    <!-- Dark background circle gradient -->
+    <radialGradient id="bgGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#121214" />
+      <stop offset="100%" stop-color="#0a0a0c" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Outer Dark Circle to pop the glow -->
+  <circle cx="50%" cy="50%" r="48" fill="url(#bgGrad)" stroke="#1f2937" stroke-width="1.5" />
+  
+  <!-- Glowing Sphere Base -->
+  <circle cx="50%" cy="50%" r="35" fill="none" stroke="url(#sphereGrad)" stroke-width="2" opacity="0.8" filter="url(#glow)" />
+  
+  <!-- Abstract Globe Grid / Code Lines -->
+  <!-- Longitude lines -->
+  <ellipse cx="50%" cy="50%" rx="20" ry="35" fill="none" stroke="url(#sphereGrad)" stroke-width="1.5" opacity="0.6" stroke-dasharray="2 3" />
+  <ellipse cx="50%" cy="50%" rx="8" ry="35" fill="none" stroke="url(#sphereGrad)" stroke-width="1.5" opacity="0.6" />
+  <line x1="50" y1="15" x2="50" y2="85" stroke="url(#sphereGrad)" stroke-width="1.5" opacity="0.6" />
+  
+  <!-- Latitude lines -->
+  <line x1="17" y1="40" x2="83" y2="40" stroke="url(#sphereGrad)" stroke-width="1.2" opacity="0.5" />
+  <line x1="15" y1="50" x2="85" y2="50" stroke="url(#sphereGrad)" stroke-width="1.5" opacity="0.6" />
+  <line x1="17" y1="60" x2="83" y2="60" stroke="url(#sphereGrad)" stroke-width="1.2" opacity="0.5" />
+  
+  <!-- Glowing code bracket symbols on the sphere -->
+  <!-- Left Bracket < -->
+  <path d="M 38 43 L 32 50 L 38 57" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)" />
+  <!-- Right Bracket > -->
+  <path d="M 62 43 L 68 50 L 62 57" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)" />
+  <!-- Slash / -->
+  <line x1="53" y1="40" x2="47" y2="60" stroke="#00f2fe" stroke-width="2.5" stroke-linecap="round" filter="url(#glow)" />
+</svg>
