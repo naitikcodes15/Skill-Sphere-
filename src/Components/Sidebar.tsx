@@ -1,14 +1,28 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import QuizType from "./QuizType";
 import ChallengeCard from "./ChallengeCard";
 import Tournaments from "./Tournaments";
 import Sessions from "./Sessions";
 import Coders from "./Coders";
 
-const Sidebar = ({ mode, setMode, setSelectedSessionId, quizConfig, setQuizConfig }) => {
-	const [activeTab, setActiveTab] = useState("+ Code");
-	const [currentView, setCurrentView] = useState("main");
-	const [isExpanded, setIsExpanded] = useState(false);
+interface QuizConfig {
+  category: string;
+  limit: string;
+  difficulty: string;
+}
+
+interface SidebarProps {
+  mode: string;
+  setMode: (mode: string) => void;
+  setSelectedSessionId: (id: string | null) => void;
+  quizConfig: QuizConfig;
+  setQuizConfig: React.Dispatch<React.SetStateAction<QuizConfig>> | ((config: QuizConfig) => void);
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ mode, setMode, setSelectedSessionId, quizConfig, setQuizConfig }) => {
+	const [activeTab, setActiveTab] = useState<string>("+ Code");
+	const [currentView, setCurrentView] = useState<string>("main");
+	const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
 	const isSessionActive = mode !== "main";
 
@@ -42,7 +56,6 @@ const Sidebar = ({ mode, setMode, setSelectedSessionId, quizConfig, setQuizConfi
 
 				{activeTab === "+ Code" && (
 					<>
-
 						{currentView === "main" ? (
 							<div className="main-code-view">
 
@@ -99,7 +112,6 @@ const Sidebar = ({ mode, setMode, setSelectedSessionId, quizConfig, setQuizConfi
 								</div>
 							</div>
 						) : (
-							/* Screen that shows when Custom or Tournament is active */
 							<div className="flex flex-col h-full p-5">
 								<button className="bg-transparent border-none text-slate-400 text-base font-bold cursor-pointer pb-5 flex items-center transition-colors duration-200 hover:text-white" onClick={() => setCurrentView("main")}>
 									← Go Back

@@ -1,7 +1,7 @@
 import admin from "firebase-admin";
 import { readFile } from "fs/promises";
 
-let serviceAccount = null;
+let serviceAccount: any = null;
 
 if (process.env.FIREBASE_SERVICE_ACCOUNT) {
   try {

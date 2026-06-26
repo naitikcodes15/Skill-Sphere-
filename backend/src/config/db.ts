@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const collections = {
+const collections: Record<string, Map<string, any>> = {
   ChallengeSession: new Map(),
   Challenge: new Map(),
   DsaQuestion: new Map(),
@@ -17,7 +17,7 @@ const setupInMemoryMock = () => {
   };
 
   // Override Model.prototype.save
-  mongoose.Model.prototype.save = async function() {
+  mongoose.Model.prototype.save = async function(this: any) {
     const modelName = this.constructor.modelName;
     if (!this._id) {
       this._id = new mongoose.Types.ObjectId();
@@ -36,20 +36,23 @@ const setupInMemoryMock = () => {
 
   // Helper query wrap class
   class MockQuery {
-    constructor(modelConstructor, result) {
+    modelConstructor: any;
+    result: any;
+
+    constructor(modelConstructor: any, result: any) {
       this.modelConstructor = modelConstructor;
       this.result = result;
     }
     
-    populate(path, select) {
+    populate(path: string, select?: string) {
       const data = this.result;
       if (!data) return this;
       
-      const populateSingle = (docObj) => {
+      const populateSingle = (docObj: any) => {
         if (!docObj) return;
         if (path === 'questions') {
           if (Array.isArray(docObj.questions)) {
-            docObj.questions = docObj.questions.map(qId => {
+            docObj.questions = docObj.questions.map((qId: any) => {
               const qStr = String(qId._id || qId);
               const qObj = collections['DsaQuestion']?.get(qStr);
               if (qObj) {
@@ -74,7 +77,7 @@ const setupInMemoryMock = () => {
       return this;
     }
     
-    sort(sortObj) {
+    sort(sortObj: Record<string, number>) {
       if (Array.isArray(this.result)) {
         const keys = Object.keys(sortObj);
         if (keys.length > 0) {
@@ -92,7 +95,7 @@ const setupInMemoryMock = () => {
       return this;
     }
     
-    async then(onfulfilled, onrejected) {
+    async then(onfulfilled?: (value: any) => any, onrejected?: (reason: any) => any) {
       try {
         let finalResult = null;
         if (Array.isArray(this.result)) {
@@ -108,7 +111,7 @@ const setupInMemoryMock = () => {
     }
   }
 
-  const wrapDoc = (modelConstructor, plainObj) => {
+  const wrapDoc = (modelConstructor: any, plainObj: any) => {
     if (!plainObj) return null;
     if (plainObj instanceof mongoose.Model) return plainObj;
     const doc = new modelConstructor(plainObj);
@@ -117,14 +120,14 @@ const setupInMemoryMock = () => {
   };
 
   // Monkey-patch static find
-  mongoose.Model.find = function(query = {}) {
+  (mongoose.Model as any).find = function(this: any, query: any = {}) {
     const modelName = this.modelName;
     const docs = Array.from(collections[modelName]?.values() || []);
     const filtered = docs.filter(doc => {
       for (const key in query) {
         if (key.includes('.')) {
           const parts = key.split('.');
-          let val = doc;
+          let val: any = doc;
           for (const part of parts) {
             val = val ? val[part] : undefined;
           }
@@ -139,14 +142,14 @@ const setupInMemoryMock = () => {
   };
 
   // Monkey-patch static findOne
-  mongoose.Model.findOne = function(query = {}) {
+  (mongoose.Model as any).findOne = function(this: any, query: any = {}) {
     const modelName = this.modelName;
     const docs = Array.from(collections[modelName]?.values() || []);
     const found = docs.find(doc => {
       for (const key in query) {
         if (key.includes('.')) {
           const parts = key.split('.');
-          let val = doc;
+          let val: any = doc;
           for (const part of parts) {
             val = val ? val[part] : undefined;
           }
@@ -161,14 +164,14 @@ const setupInMemoryMock = () => {
   };
 
   // Monkey-patch static findById
-  mongoose.Model.findById = function(id) {
+  (mongoose.Model as any).findById = function(this: any, id: any) {
     const modelName = this.modelName;
     const doc = collections[modelName]?.get(String(id));
     return new MockQuery(this, doc || null);
   };
 
   // Monkey-patch static deleteOne
-  mongoose.Model.deleteOne = async function(query = {}) {
+  (mongoose.Model as any).deleteOne = async function(this: any, query: any = {}) {
     const modelName = this.modelName;
     const docs = Array.from(collections[modelName]?.values() || []);
     const found = docs.find(doc => {
@@ -184,7 +187,7 @@ const setupInMemoryMock = () => {
   };
 
   // Monkey-patch static deleteMany
-  mongoose.Model.deleteMany = async function(query = {}) {
+  (mongoose.Model as any).deleteMany = async function(this: any, query: any = {}) {
     const modelName = this.modelName;
     if (collections[modelName]) {
       collections[modelName].clear();
@@ -193,7 +196,7 @@ const setupInMemoryMock = () => {
   };
 
   // Monkey-patch static insertMany
-  mongoose.Model.insertMany = async function(arr) {
+  (mongoose.Model as any).insertMany = async function(this: any, arr: any[]) {
     const modelName = this.modelName;
     if (!collections[modelName]) {
       collections[modelName] = new Map();
@@ -207,7 +210,7 @@ const setupInMemoryMock = () => {
   };
 
   // Monkey-patch static aggregate
-  mongoose.Model.aggregate = async function(pipeline) {
+  (mongoose.Model as any).aggregate = async function(this: any, pipeline: any[]) {
     const modelName = this.modelName;
     const docs = Array.from(collections[modelName]?.values() || []);
     
@@ -222,13 +225,12 @@ const setupInMemoryMock = () => {
     return sampled;
   };
 
-  // Seed local DSA questions list
   seedDsaInMemory();
 };
 
 const seedDsaInMemory = () => {
   const DsaQuestion = mongoose.model("DsaQuestion");
-  const questionsList = [
+  const questionsList: any[] = [
     {
       title: "1. Palindrome Number",
       description: "Check if an integer is a palindrome. Return 'true' or 'false'.\n\n**Time Complexity:** O(log10 n)\n**Space Complexity:** O(1)",
@@ -412,7 +414,7 @@ const seedDsaInMemory = () => {
         { input: "a,a", expectedOutput: "true" }
       ],
       initialCode: {
-        javascript: "function solve(input) {\n  const [s, t] = input.split(',');\n  // return 'true' or 'false'\n}",
+        javascript: "function solve(input: string) {\n  const [s, t] = input.split(',');\n  // return 'true' or 'false'\n}",
         python: "def solve(input):\n    s, t = input.split(',')\n    # return 'true' or 'false'\n    pass",
         cpp: "string solve(string input) {\n  // split by comma and compare\n}",
         java: "public static String solve(String input) {\n  // split by comma and compare\n}",
@@ -460,7 +462,7 @@ export const connectDB = async () => {
     // Set a short connection timeout so it doesn't hang in offline sandbox
     await mongoose.connect(process.env.MONGO_URI, {
       serverSelectionTimeoutMS: 2000
-    });
+    } as any);
     console.log("MongoDB Connected");
   } catch (err) {
     setupInMemoryMock();

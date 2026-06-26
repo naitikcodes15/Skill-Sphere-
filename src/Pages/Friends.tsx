@@ -19,12 +19,19 @@ import AddFriend from '../Components/AddFriend';
 import ChatBox from '../Components/ChatBox';
 import ProfileView from '../Components/ProfileView';
 
-const Friends = () => {
-    const [activeTab, setActiveTab] = useState('chat');
-    const [selectedUser, setSelectedUser] = useState(null);
-    const [searchName, setSearchName] = useState('');
-    const [results, setResults] = useState([]);
-    const [friendsList, setFriendsList] = useState([]);
+export interface Friend {
+    id: string;
+    username: string;
+    status: string;
+    updatedAt?: any;
+}
+
+const Friends: React.FC = () => {
+    const [activeTab, setActiveTab] = useState<string>('chat');
+    const [selectedUser, setSelectedUser] = useState<Friend | null>(null);
+    const [searchName, setSearchName] = useState<string>('');
+    const [results, setResults] = useState<any[]>([]);
+    const [friendsList, setFriendsList] = useState<Friend[]>([]);
 
     useEffect(() => {
         if (!auth.currentUser) return;
@@ -37,8 +44,10 @@ const Friends = () => {
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const friends = snapshot.docs.map(doc => ({
                 id: doc.id,
+                username: doc.data().username || "",
+                status: doc.data().status || "",
                 ...doc.data()
-            }));
+            })) as Friend[];
             setFriendsList(friends);
         });
 
@@ -47,15 +56,15 @@ const Friends = () => {
 
     const handleSearch = async () => {
         const term = searchName.trim();
-        if (!term) return;
+        if (!term || !auth.currentUser) return;
 
         try {
             const q = query(collection(db, "users"), where("username", "==", term));
             const querySnapshot = await getDocs(q);
-            const usersFound = [];
+            const usersFound: any[] = [];
 
             querySnapshot.forEach((doc) => {
-                if (doc.id !== auth.currentUser.uid) {
+                if (doc.id !== auth.currentUser?.uid) {
                     usersFound.push({ id: doc.id, ...doc.data() });
                 }
             });
@@ -67,7 +76,7 @@ const Friends = () => {
         }
     };
 
-    const addFriend = async (targetUser) => {
+    const addFriend = async (targetUser: any) => {
         const currentUser = auth.currentUser;
         if (!currentUser) return;
 

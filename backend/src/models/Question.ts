@@ -1,6 +1,30 @@
-import mongoose from 'mongoose';
+import mongoose, { Document, Schema } from 'mongoose';
 
-const questionSchema = new mongoose.Schema({
+export interface IQuestion {
+	id: string;
+	text: string;
+	type?: string;
+	difficulty?: string;
+	explanation?: string;
+	category?: string;
+	answers: Array<{
+		id: string;
+		text: string;
+		isCorrect: boolean;
+	}>;
+}
+
+export interface ISession extends Document {
+	userId: string;
+	sessionType: 'practice' | 'challenge' | 'tournament';
+	status: 'in-progress' | 'completed';
+	questions: IQuestion[];
+	userAnswers: Map<string, string>;
+	score: number;
+	createdAt: Date;
+}
+
+const questionSchema = new Schema<IQuestion>({
 	id: { type: String, required: true },
 	text: { type: String, required: true },
 	type: { type: String },
@@ -12,9 +36,9 @@ const questionSchema = new mongoose.Schema({
 		text: String,
 		isCorrect: Boolean
 	}]
-}, { _id: false }); // _id false so it doesn't create a new mongo id for each question, we use QuizAPI's id
+}, { _id: false });
 
-const sessionSchema = new mongoose.Schema({
+const sessionSchema = new Schema<ISession>({
 	userId: {
 		type: String,
 		default: "guest"
@@ -31,7 +55,6 @@ const sessionSchema = new mongoose.Schema({
 	},
 	questions: [questionSchema],
 	userAnswers: {
-		// Map of question ID to answer ID
 		type: Map,
 		of: String,
 		default: {}
@@ -46,4 +69,4 @@ const sessionSchema = new mongoose.Schema({
 	}
 });
 
-export default mongoose.model('Session', sessionSchema);
+export default mongoose.model<ISession>('Session', sessionSchema);

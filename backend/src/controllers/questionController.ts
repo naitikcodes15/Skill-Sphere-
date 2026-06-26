@@ -1,3 +1,4 @@
+import { Request, Response } from 'express';
 import axios from 'axios';
 import Session from '../models/Question.js';
 import { localQuestions } from '../data/localQuestions.js';
@@ -6,15 +7,15 @@ const quizApi = axios.create({
 	baseURL: process.env.QUIZ_API_BASE_URL || 'https://quizapi.io/api/v1'
 });
 
-quizApi.interceptors.request.use(config => {
+quizApi.interceptors.request.use((config) => {
 	config.headers.Authorization = `Bearer ${process.env.QUIZ_API_KEY}`;
 	return config;
 });
 
-const transformAnswers = (answers, correct_answers) => {
+const transformAnswers = (answers: any, correct_answers: any) => {
     if (!answers) return [];
     if (Array.isArray(answers)) return answers;
-    const result = [];
+    const result: any[] = [];
     Object.keys(answers).forEach(key => {
         if (answers[key]) {
             result.push({
@@ -27,38 +28,37 @@ const transformAnswers = (answers, correct_answers) => {
     return result;
 };
 
-export const getQuestionsFromAPI = async (req, res) => {
+export const getQuestionsFromAPI = async (req: Request, res: Response): Promise<any> => {
 	try {
 		const response = await quizApi.get('/questions', { params: req.query });
-		res.status(200).json(response.data);
-	} catch (error) {
+		return res.status(200).json(response.data);
+	} catch (error: any) {
 		console.warn("Error fetching questions from QuizAPI, falling back to local:", error.message);
-		res.status(200).json(localQuestions);
+		return res.status(200).json(localQuestions);
 	}
 };
 
-export const startPracticeSession = async (req, res) => {
+export const startPracticeSession = async (req: Request, res: Response): Promise<any> => {
 	try {
 		const category = req.body?.category || req.query?.category;
 		const difficulty = req.body?.difficulty || req.query?.difficulty;
 		const tags = req.body?.tags || req.query?.tags;
-		const limit = req.body?.limit || req.query?.limit || 10;
+		const limit = parseInt(String(req.body?.limit || req.query?.limit || 10));
 
-		const params = {};
+		const params: any = {};
 		if (category) params.category = category;
 		if (difficulty) params.difficulty = difficulty;
 		if (tags) params.tags = tags;
 		if (limit) params.limit = limit;
 
-		let rawQuestions = [];
+		let rawQuestions: any[] = [];
 		try {
 			const response = await quizApi.get('/questions', { params });
 			rawQuestions = Array.isArray(response.data) ? response.data : (response.data.data || []);
-		} catch (apiError) {
+		} catch (apiError: any) {
 			console.warn("QuizAPI request failed, falling back to local quiz questions:", apiError.message);
-			// Filter local questions by category/difficulty if specified
 			rawQuestions = localQuestions.filter(q => {
-				if (category && q.category.toLowerCase() !== category.toLowerCase()) return false;
+				if (category && q.category.toLowerCase() !== (category as string).toLowerCase()) return false;
 				return true;
 			});
 			if (rawQuestions.length === 0) {
@@ -71,7 +71,6 @@ export const startPracticeSession = async (req, res) => {
 			return res.status(200).json({ success: false, message: 'No questions found for the given criteria. Try a different category or difficulty.' });
 		}
 
-		// Transform format to internal Session model format
 		const questionsData = rawQuestions.map(q => {
 			return {
 				id: String(q.id || q._id),
@@ -95,27 +94,27 @@ export const startPracticeSession = async (req, res) => {
 		const savedSession = await newSession.save();
 
 		const sanitizedQuestions = savedSession.questions.map(q => {
-			const qObj = q.toObject();
+			const qObj = (q as any).toObject();
 			if (qObj.answers) {
-				qObj.answers.forEach(a => delete a.isCorrect);
+				qObj.answers.forEach((a: any) => delete a.isCorrect);
 			}
 			return qObj;
 		});
 
-		res.status(201).json({
+		return res.status(201).json({
 			success: true,
 			message: 'Practice session started successfully',
 			sessionId: savedSession._id,
 			questions: sanitizedQuestions
 		});
 
-	} catch (error) {
+	} catch (error: any) {
 		console.error("Error starting practice session:", error.response ? error.response.data : error.message);
-		res.status(500).json({ success: false, message: 'Failed to start practice session' });
+		return res.status(500).json({ success: false, message: 'Failed to start practice session' });
 	}
 };
 
-export const getSession = async (req, res) => {
+export const getSession = async (req: Request, res: Response): Promise<any> => {
 	try {
 		const session = await Session.findById(req.params.id);
 		if (!session) {
@@ -124,9 +123,9 @@ export const getSession = async (req, res) => {
 
 		if (session.status === 'in-progress') {
 			const sanitizedQuestions = session.questions.map(q => {
-				const qObj = q.toObject();
+				const qObj = (q as any).toObject();
 				if (qObj.answers) {
-					qObj.answers.forEach(a => delete a.isCorrect);
+					qObj.answers.forEach((a: any) => delete a.isCorrect);
 				}
 				return qObj;
 			});
@@ -136,14 +135,14 @@ export const getSession = async (req, res) => {
 			});
 		}
 
-		res.status(200).json({ success: true, session });
+		return res.status(200).json({ success: true, session });
 	} catch (error) {
 		console.error("Error fetching session:", error);
-		res.status(500).json({ success: false, message: 'Failed to fetch session' });
+		return res.status(500).json({ success: false, message: 'Failed to fetch session' });
 	}
 };
 
-export const submitSessionAnswers = async (req, res) => {
+export const submitSessionAnswers = async (req: Request, res: Response): Promise<any> => {
 	try {
 		const { id } = req.params;
 		const { userAnswers } = req.body || {}; 
@@ -180,7 +179,7 @@ export const submitSessionAnswers = async (req, res) => {
 
 		const updatedSession = await session.save();
 
-		res.status(200).json({
+		return res.status(200).json({
 			success: true,
 			message: 'Session submitted successfully',
 			score: updatedSession.score,
@@ -190,6 +189,6 @@ export const submitSessionAnswers = async (req, res) => {
 
 	} catch (error) {
 		console.error("Error submitting session:", error);
-		res.status(500).json({ success: false, message: 'Failed to submit session' });
+		return res.status(500).json({ success: false, message: 'Failed to submit session' });
 	}
 };

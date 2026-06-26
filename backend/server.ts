@@ -3,7 +3,7 @@ import express from "express";
 import cors from "cors";
 import admin from "./src/config/firebase-config.js";
 import http from "http";
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 import axios from "axios";
 import { exec } from "child_process";
 import util from "util";
@@ -38,28 +38,29 @@ app.use(cors({
 app.use(express.json());
 
 app.use('/api/quiz', questionRoutes);
-app.use('/api/challenge',challengeRoutes);
+app.use('/api/challenge', challengeRoutes);
 
-app.get("/", (req, res) => res.send("Server working"));
+app.get("/", (req, res) => {
+  res.send("Server working");
+});
 
-app.get("/api/sessions", async (req, res) => {
+app.get("/api/sessions", async (req, res): Promise<any> => {
   try {
     const { userId } = req.query;
     if (!userId) return res.status(400).json({ success: false, message: "Missing userId" });
     
-    // Find challenge sessions where this user was a participant
-    // Since userDetails.name is stored, we might match by name or email. Assuming userId passed is the name.
     const sessions = await ChallengeSession.find({
       status: "completed",
       "players.userDetails.name": userId
-    }).sort({ updatedAt: -1 });
+    }).sort({ updatedAt: -1 } as any);
     
-    res.json(sessions);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    return res.json(sessions);
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message });
   }
 });
-io.on("connection", (socket) => {
+
+io.on("connection", (socket: Socket) => {
   console.log("New client connected", socket.id);
 
   socket.on("join_challenge", async ({ challengeId, userDetails }) => {
@@ -97,7 +98,6 @@ io.on("connection", (socket) => {
     try {
       const challenge = await ChallengeSession.findOne({ challengeId });
       if (challenge && challenge.status === 'ready') {
-        // Fetch 10 random DSA questions
         const questions = await DsaQuestion.aggregate([{ $sample: { size: 10 } }]);
         if (questions && questions.length > 0) {
           challenge.questions = questions;
@@ -164,8 +164,6 @@ io.on("connection", (socket) => {
       else if (language === 'java') pistonLang = 'java';
       else if (language === 'c') pistonLang = 'c';
 
-      // Evaluate code against test cases
-      // If NOT isSubmit, just run the first test case
       const testCasesToRun = isSubmit ? question.testCases : [question.testCases[0]];
 
       for (let i = 0; i < testCasesToRun.length; i++) {
@@ -196,7 +194,6 @@ io.on("connection", (socket) => {
         }
 
         try {
-          // Local Execution Engine since Piston Public API is shut down
           const tmpId = Math.random().toString(36).substring(7);
           let stdoutStr = "";
           let stderrStr = "";
@@ -208,7 +205,7 @@ io.on("connection", (socket) => {
               const { stdout, stderr } = await execPromise(`node ${fileName}`, { timeout: 3000 });
               stdoutStr = stdout;
               stderrStr = stderr;
-            } catch(e) {
+            } catch(e: any) {
               stderrStr = e.stderr || e.message;
             }
             await fs.unlink(fileName).catch(()=>{});
@@ -219,7 +216,7 @@ io.on("connection", (socket) => {
               const { stdout, stderr } = await execPromise(`python3 ${fileName}`, { timeout: 3000 });
               stdoutStr = stdout;
               stderrStr = stderr;
-            } catch(e) {
+            } catch(e: any) {
               stderrStr = e.stderr || e.message;
             }
             await fs.unlink(fileName).catch(()=>{});
@@ -243,7 +240,7 @@ int main() {
               const { stdout, stderr } = await execPromise(`g++ ${fileName} -o ${outName} && ./${outName}`, { timeout: 5000 });
               stdoutStr = stdout;
               stderrStr = stderr;
-            } catch(e) {
+            } catch(e: any) {
               stderrStr = e.stderr || e.message;
             }
             await fs.unlink(fileName).catch(()=>{});
@@ -265,7 +262,7 @@ ${executableCode}
               const { stdout, stderr } = await execPromise(`javac ${fileName} && java ${className}`, { timeout: 5000 });
               stdoutStr = stdout;
               stderrStr = stderr;
-            } catch(e) {
+            } catch(e: any) {
               stderrStr = e.stderr || e.message;
             }
             await fs.unlink(fileName).catch(()=>{});
@@ -291,13 +288,12 @@ int main() {
               const { stdout, stderr } = await execPromise(`gcc ${fileName} -o ${outName} && ./${outName}`, { timeout: 5000 });
               stdoutStr = stdout;
               stderrStr = stderr;
-            } catch(e) {
+            } catch(e: any) {
               stderrStr = e.stderr || e.message;
             }
             await fs.unlink(fileName).catch(()=>{});
             await fs.unlink(outName).catch(()=>{});
           } else {
-            // Fallback for unsupported local langs
             socket.emit("code_result", { success: false, message: `Local execution for ${language} is not supported right now.`, isSubmit });
             return;
           }
@@ -391,4 +387,6 @@ int main() {
 });
 
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+server.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});

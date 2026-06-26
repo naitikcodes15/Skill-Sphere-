@@ -1,15 +1,20 @@
+import React, { useState } from "react";
 import Sidebar from "../Components/Sidebar";
 import SessionDetails from "../Components/SessionDetails";
 import Practice from "./Practice";
 import QuestArena from "../Components/QuestArena";
 import Challenge from "../Components/Challenge";
 
+interface QuizConfig {
+  difficulty: string;
+  limit: string;
+  category: string;
+}
 
-import { useState } from "react";
-export default function Quizzes() {
-	const [mode, setMode] = useState('main');
-	const [selectedSessionId, setSelectedSessionId] = useState(null);
-	const [quizConfig, setQuizConfig] = useState({
+export default function Quizzes(): React.ReactElement {
+	const [mode, setMode] = useState<string>('main');
+	const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
+	const [quizConfig, setQuizConfig] = useState<QuizConfig>({
 		difficulty: 'Medium',
 		limit: '10',
 		category: 'DevOps'
@@ -26,7 +31,5 @@ export default function Quizzes() {
 			{mode === "session" && selectedSessionId && (<SessionDetails sessionId={selectedSessionId} setMode={setMode} />)}
 			<Sidebar mode={mode} setMode={setMode} setSelectedSessionId={setSelectedSessionId} quizConfig={quizConfig} setQuizConfig={setQuizConfig} />
 		</div>
-	)
+	);
 }
-
-		

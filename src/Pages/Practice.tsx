@@ -1,15 +1,45 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BACKEND_URL } from "../utils/api";
 
-const Practice = ({ setMode, quizConfig }) => {
-    const [questions, setQuestions] = useState([]);
-    const [userAnswers, setUserAnswers] = useState({});
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const [score, setScore] = useState(0);
-    const [showResult, setShowResult] = useState(false);
-    const [timeLeft, setTimeLeft] = useState(600);
-    const [sessionId, setSessionId] = useState(null);
-    const [error, setError] = useState(null);
+interface QuizConfig {
+  category?: string;
+  difficulty?: string;
+  limit?: string | number;
+}
+
+interface PracticeProps {
+  setMode: (mode: string) => void;
+  quizConfig?: QuizConfig;
+}
+
+interface QuestionAnswerOption {
+  id: string;
+  text: string;
+}
+
+interface QuizQuestion {
+  id: string;
+  question?: string;
+  text?: string;
+  title?: string;
+  category?: string;
+  difficulty?: string;
+  description?: string;
+  data?: {
+    text?: string;
+  };
+  answers: QuestionAnswerOption[] | Record<string, string | null>;
+}
+
+const Practice: React.FC<PracticeProps> = ({ setMode, quizConfig }) => {
+    const [questions, setQuestions] = useState<QuizQuestion[]>([]);
+    const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
+    const [currentIndex, setCurrentIndex] = useState<number>(0);
+    const [score, setScore] = useState<number>(0);
+    const [showResult, setShowResult] = useState<boolean>(false);
+    const [timeLeft, setTimeLeft] = useState<number>(600);
+    const [sessionId, setSessionId] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     const fetchQuestions = async () => {
         try {
@@ -19,14 +49,14 @@ const Practice = ({ setMode, quizConfig }) => {
                 body: JSON.stringify({
                     category: quizConfig?.category,
                     difficulty: quizConfig?.difficulty,
-                    limit: parseInt(quizConfig?.limit || 10)
+                    limit: parseInt(String(quizConfig?.limit || 10))
                 })
             });
             const data = await res.json();
             if (data.success && data.questions) {
                 setQuestions(data.questions);
                 setSessionId(data.sessionId);
-                setTimeLeft(parseInt(quizConfig?.limit || 10) * 60); // 1 min per question
+                setTimeLeft(parseInt(String(quizConfig?.limit || 10)) * 60); // 1 min per question
             } else {
                 setError(data.message || "Failed to load questions");
             }
@@ -40,7 +70,7 @@ const Practice = ({ setMode, quizConfig }) => {
         fetchQuestions();
     }, []);
 
-    const handleFinish = async (finalAnswers) => {
+    const handleFinish = async (finalAnswers: Record<string, string>) => {
         if (!sessionId) return;
         
         try {
@@ -72,7 +102,7 @@ const Practice = ({ setMode, quizConfig }) => {
         return () => clearInterval(timer);
     }, [timeLeft, questions.length, showResult]);
 
-    const handleAnswer = (answerId) => {
+    const handleAnswer = (answerId: string) => {
         const currentQ = questions[currentIndex];
         
         const newAnswers = {
@@ -88,7 +118,7 @@ const Practice = ({ setMode, quizConfig }) => {
         }
     };
 
-    const formatTime = (seconds) => {
+    const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60);
         const secs = seconds % 60;
         return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
@@ -132,14 +162,14 @@ const Practice = ({ setMode, quizConfig }) => {
     const currentQ = questions[currentIndex];
     
     // Parse answers object or array
-    let answerOptions = [];
+    let answerOptions: QuestionAnswerOption[] = [];
     if (Array.isArray(currentQ.answers)) {
-        answerOptions = currentQ.answers;
+        answerOptions = currentQ.answers as QuestionAnswerOption[];
     } else if (currentQ.answers && typeof currentQ.answers === 'object') {
         // QuizAPI format: answers: { answer_a: "...", answer_b: "..." }
         answerOptions = Object.entries(currentQ.answers)
             .filter(([_, text]) => text !== null)
-            .map(([id, text]) => ({ id, text }));
+            .map(([id, text]) => ({ id, text: String(text) }));
     }
 
     return (

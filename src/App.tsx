@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react'
 import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
 import { app } from './firebase';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 import SignupCard from './Components/SignupCard'
 import HomePage from './Pages/HomePage';
 import Profile from './Components/Profile';
 import Navbar from './Components/Navbar';
-
 import Friends from './Pages/Friends';
 import Games from './Pages/Games';
 import Quizzes from './Pages/Quizzes';
+
 const auth = getAuth(app);
 
 function Layout() {
@@ -38,8 +38,8 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   
   useEffect(() => {
     // Check for dev bypass in URL
@@ -50,7 +50,7 @@ function App() {
         displayName: "TestAgent",
         email: "agent@test.com",
         photoURL: "https://via.placeholder.com/150"
-      });
+      } as unknown as User);
       setLoading(false);
       return;
     }
