@@ -3,10 +3,23 @@ import { db, auth } from '../firebase';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import ProfileView from './ProfileView';
 
-const Profile = () => {
-  const [isExistingUser, setIsExistingUser] = useState(false);
-  const [isEditing, setIsEditing] = useState(false); // New state to toggle UI
-  const [formData, setFormData] = useState({
+interface ProfileFormData {
+  name: string;
+  username: string;
+  age: string | number;
+  gender: string;
+  homeCity: string;
+  collegeName: string;
+  degree: string;
+  branch: string;
+  year: string | number;
+  about: string;
+}
+
+const Profile: React.FC = () => {
+  const [isExistingUser, setIsExistingUser] = useState<boolean>(false);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [formData, setFormData] = useState<ProfileFormData>({
     name: '', username: '', age: '', gender: '', homeCity: '',
     collegeName: '', degree: '', branch: '', year: '', about: ''
   });
@@ -19,22 +32,22 @@ const Profile = () => {
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
-          setFormData(docSnap.data());
+          setFormData(docSnap.data() as ProfileFormData);
           setIsExistingUser(true);
-          setIsEditing(false); // If they have data, show the View mode
+          setIsEditing(false);
         } else {
-          setIsEditing(true); // If no data, show Edit mode to set up
+          setIsEditing(true);
         }
       }
     };
     fetchUserData();
   }, []);
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const user = auth.currentUser;
     
@@ -43,22 +56,19 @@ const Profile = () => {
       return;
     }
 
-    if (user) {
-      try {
-        await setDoc(doc(db, "users", user.uid), formData);
-        setIsExistingUser(true);
-        setIsEditing(false); // Switch back to View mode after saving/updating
-        alert(isExistingUser ? "Profile Updated!" : "Profile Saved!");
-      } catch (error) {
-        console.error("Error saving profile:", error);
-      }
+    try {
+      await setDoc(doc(db, "users", user.uid), formData);
+      setIsExistingUser(true);
+      setIsEditing(false);
+      alert(isExistingUser ? "Profile Updated!" : "Profile Saved!");
+    } catch (error) {
+      console.error("Error saving profile:", error);
     }
   };
 
   return (
     <div className="w-full h-full bg-[#121212] flex justify-center items-center p-2.5 box-border">
       {isEditing ? (
-        /* EDIT MODE (Form UI) */
         <div className="bg-[#1e1e1e] w-full max-w-[450px] p-5 rounded-lg shadow-lg overflow-y-auto max-h-[90vh]">
           <h2 className="text-[#e67e22] text-[1.4rem] font-extrabold mb-[15px] text-center m-0 pb-4">
             {isExistingUser ? "Update Profile" : "Setup Profile"}
@@ -128,7 +138,6 @@ const Profile = () => {
           </form>
         </div>
       ) : (
-        /* VIEW MODE (Nice Card UI) */
         <ProfileView data={formData} onEdit={() => setIsEditing(true)} />
       )}
     </div>

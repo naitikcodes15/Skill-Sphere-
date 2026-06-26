@@ -1,9 +1,18 @@
 import React, { useState } from "react";
 
-const Tournaments = () => {
-  const [activeTab, setActiveTab] = useState("Schedule");
+interface TournamentItem {
+  time: string;
+  lang: string;
+  type: string;
+  duration: string;
+  status: string;
+  coders: number;
+}
 
-  const tournamentData = [
+const Tournaments: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<string>("Schedule");
+
+  const tournamentData: TournamentItem[] = [
     { time: "08:00 PM", lang: "JAVA", type: "DSA", duration: "25 min", status: "2 hours left", coders: 45 },
     { time: "09:30 PM", lang: "PYTHON", type: "MCQ", duration: "15 min", status: "Starting soon", coders: 128 },
     { time: "10:00 PM", lang: "C++", type: "CP", duration: "2 hrs", status: "Registration Open", coders: 89 },

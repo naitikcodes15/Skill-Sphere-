@@ -7,12 +7,17 @@ import {
     onSnapshot, 
     doc, 
     writeBatch, 
-    serverTimestamp,
-    deleteDoc 
+    serverTimestamp
 } from 'firebase/firestore';
 
-const RequestsList = () => {
-    const [requests, setRequests] = useState([]);
+interface FriendRequest {
+  id: string;
+  username?: string;
+  [key: string]: any;
+}
+
+const RequestsList: React.FC = () => {
+    const [requests, setRequests] = useState<FriendRequest[]>([]);
 
     useEffect(() => {
         const currentUser = auth.currentUser;
@@ -27,15 +32,14 @@ const RequestsList = () => {
             const incomingRequests = snapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
-            }));
+            })) as FriendRequest[];
             setRequests(incomingRequests);
         });
 
         return () => unsubscribe();
     }, []);
 
-    // Function to Accept Request
-    const handleAccept = async (requestingUser) => {
+    const handleAccept = async (requestingUser: FriendRequest) => {
         const currentUser = auth.currentUser;
         if (!currentUser) return;
 
@@ -62,8 +66,7 @@ const RequestsList = () => {
         }
     };
 
-    // Function to Decline/Delete Request
-    const handleDecline = async (requestingUser) => {
+    const handleDecline = async (requestingUser: FriendRequest) => {
         const currentUser = auth.currentUser;
         if (!currentUser) return;
 
@@ -94,7 +97,6 @@ const RequestsList = () => {
                             <span className="font-bold text-[#f2f3f5] text-[1rem] block">{req.username}</span>
                         </div>
                         <div className="flex gap-[10px]">
-                            {/* Added onClick handlers here */}
                             <button 
                                 className="w-[40px] h-[40px] rounded-[8px] bg-transparent border-none cursor-pointer flex items-center justify-center text-[1.2rem] text-green-500 transition-colors duration-200 hover:text-[#23a559] hover:bg-[#1e1f22]" 
                                 onClick={() => handleAccept(req)}

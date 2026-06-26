@@ -1,15 +1,36 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { auth } from "../firebase";
 import { BACKEND_URL } from "../utils/api";
 
-const Sessions = ({ setSelectedSessionId, setMode }) => {
-    const [sessions, setSessions] = useState([]); 
-    const [loading, setLoading] = useState(true);
+interface Player {
+  socketId: string;
+  userDetails?: {
+    name: string;
+  };
+  score: number;
+}
+
+interface SessionData {
+  _id: string;
+  players?: Player[];
+  winner?: {
+    socketId: string;
+  };
+  createdAt: string;
+}
+
+interface SessionsProps {
+  setSelectedSessionId: (id: string | null) => void;
+  setMode: (mode: string) => void;
+}
+
+const Sessions: React.FC<SessionsProps> = ({ setSelectedSessionId, setMode }) => {
+    const [sessions, setSessions] = useState<SessionData[]>([]); 
+    const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
         const fetchSessions = async () => {
             try {
-                // Wait for auth state to initialize if needed, or just use currentUser
                 const user = auth.currentUser;
                 if (!user) {
                     setLoading(false);

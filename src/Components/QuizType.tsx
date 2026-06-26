@@ -1,12 +1,24 @@
 import React from 'react';
 
-const QuizType = ({ quizConfig, setQuizConfig, disabled }) => {
-  const updateConfig = (key, value) => {
+interface QuizConfig {
+  difficulty: string;
+  limit: string;
+  category: string;
+}
+
+interface QuizTypeProps {
+  quizConfig: QuizConfig;
+  setQuizConfig: (config: QuizConfig) => void;
+  disabled: boolean;
+}
+
+const QuizType: React.FC<QuizTypeProps> = ({ quizConfig, setQuizConfig, disabled }) => {
+  const updateConfig = (key: keyof QuizConfig, value: string) => {
     if (disabled) return;
     setQuizConfig({ ...quizConfig, [key]: value });
   };
 
-  const renderSection = (title, options, selected, setterKey) => (
+  const renderSection = (title: string, options: string[], selected: string, setterKey: keyof QuizConfig) => (
     <div className="mb-5">
       <h3 className="text-[12px] text-[#94a3b8] mb-2.5 uppercase tracking-[0.5px] font-bold">{title}</h3>
       <div className="grid grid-cols-3 gap-2.5">

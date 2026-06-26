@@ -2,8 +2,26 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
 
-const ProfileView = ({ data, userId, onEdit }) => {
-    const [userData, setUserData] = useState(null);
+interface ProfileData {
+  name?: string;
+  username?: string;
+  degree?: string;
+  branch?: string;
+  age?: string | number;
+  homeCity?: string;
+  collegeName?: string;
+  year?: string | number;
+  about?: string;
+}
+
+interface ProfileViewProps {
+  data?: ProfileData | null;
+  userId?: string | null;
+  onEdit?: () => void;
+}
+
+const ProfileView: React.FC<ProfileViewProps> = ({ data, userId, onEdit }) => {
+    const [userData, setUserData] = useState<ProfileData | null>(null);
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -15,7 +33,7 @@ const ProfileView = ({ data, userId, onEdit }) => {
                 try {
                     const userDoc = await getDoc(doc(db, "users", userId));
                     if (userDoc.exists()) {
-                        setUserData(userDoc.data());
+                        setUserData(userDoc.data() as ProfileData);
                     }
                 } catch (error) {
                     console.error("Error fetching profile:", error);

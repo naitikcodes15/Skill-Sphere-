@@ -1,30 +1,52 @@
-import { useState, useEffect, useRef } from "react";
-import { io } from "socket.io-client";
+import React, { useState, useEffect, useRef } from "react";
+import { io, Socket } from "socket.io-client";
 import { useBlocker, useNavigate } from "react-router-dom";
 import CodeEditor from "./CodeEditor";
 import { auth } from "../firebase";
 import { BACKEND_URL } from "../utils/api";
 
-const socket = io(BACKEND_URL, { withCredentials: true });
+const socket: Socket = io(BACKEND_URL, { withCredentials: true });
+
+interface Player {
+  socketId: string;
+  userDetails?: {
+    name: string;
+  };
+  score: number;
+  currentIndex?: number;
+}
+
+interface Question {
+  title: string;
+  description: string;
+  initialCode?: {
+    [key: string]: string;
+  };
+}
+
+interface ChallengeState {
+  players: Player[];
+  questions?: Question[];
+}
 
 export default function Challenge() {
 	const navigate = useNavigate();
-	const [language, setLanguage] = useState("javascript");
-	const [code, setCode] = useState("");
-	const [output, setOutput] = useState("");
-	const [isRunning, setIsRunning] = useState(false);
-	const [opponentStatus, setOpponentStatus] = useState("");
-	const typingTimeoutRef = useRef(null);
+	const [language, setLanguage] = useState<string>("javascript");
+	const [code, setCode] = useState<string>("");
+	const [output, setOutput] = useState<string>("");
+	const [isRunning, setIsRunning] = useState<boolean>(false);
+	const [opponentStatus, setOpponentStatus] = useState<string>("");
+	const typingTimeoutRef = useRef<any>(null);
 	
-	const [challengeState, setChallengeState] = useState(null);
-	const [isReady, setIsReady] = useState(false);
-	const [isStarted, setIsStarted] = useState(false);
-	const [winner, setWinner] = useState(null);
+	const [challengeState, setChallengeState] = useState<ChallengeState | null>(null);
+	const [isReady, setIsReady] = useState<boolean>(false);
+	const [isStarted, setIsStarted] = useState<boolean>(false);
+	const [winner, setWinner] = useState<Player | null>(null);
 	
-	const [roomCode, setRoomCode] = useState("");
-	const [joinCodeInput, setJoinCodeInput] = useState("");
-	const [inRoom, setInRoom] = useState(false);
-	const [isHost, setIsHost] = useState(false);
+	const [roomCode, setRoomCode] = useState<string>("");
+	const [joinCodeInput, setJoinCodeInput] = useState<string>("");
+	const [inRoom, setInRoom] = useState<boolean>(false);
+	const [isHost, setIsHost] = useState<boolean>(false);
 
 	const getUserName = () => auth.currentUser?.displayName || auth.currentUser?.email?.split('@')[0] || "Player";
 
@@ -54,7 +76,7 @@ export default function Challenge() {
 	}, [blocker]);
 
 	useEffect(() => {
-		socket.on("challenge_state", (state) => {
+		socket.on("challenge_state", (state: ChallengeState) => {
 			setChallengeState(state);
 			
 			const myPlayer = state?.players?.find(p => p.socketId === socket.id);
@@ -77,11 +99,11 @@ export default function Challenge() {
 			setIsStarted(true);
 		});
 
-		socket.on("challenge_end", ({ winner }) => {
+		socket.on("challenge_end", ({ winner }: { winner: Player }) => {
 			setWinner(winner);
 		});
 		
-		socket.on("code_result", ({ success, message, isSubmit }) => {
+		socket.on("code_result", ({ success, message, isSubmit }: { success: boolean; message: string; isSubmit: boolean }) => {
 			setIsRunning(false);
 			setOutput(message);
 			if (success && isSubmit) {
@@ -99,7 +121,7 @@ export default function Challenge() {
 			setOpponentStatus("Running code...");
 		});
 
-		const handleBeforeUnload = (e) => {
+		const handleBeforeUnload = (e: BeforeUnloadEvent) => {
 			const { inRoom, isStarted, winner, roomCode } = stateRef.current;
 			if (inRoom && !winner) {
 				socket.emit("leave_challenge", { challengeId: roomCode });
@@ -119,18 +141,17 @@ export default function Challenge() {
 			socket.off("opponent_typing");
 			socket.off("opponent_running");
 		};
-	}, []); 
+	}, [language, code]); 
 
-	const handleCodeChange = (newCode) => {
+	const handleCodeChange = (newCode: string) => {
 		setCode(newCode);
 		if (roomCode) {
 			socket.emit("typing", { challengeId: roomCode });
 		}
 	};
 
-	const handleLanguageChange = (newLang) => {
+	const handleLanguageChange = (newLang: string) => {
 		setLanguage(newLang);
-		// Load starter code for new lang if we have the question
 		const myPlayer = challengeState?.players?.find(p => p.socketId === socket.id);
 		if (myPlayer && challengeState?.questions) {
 		    const currentIndex = myPlayer.currentIndex || myPlayer.score || 0;
@@ -144,9 +165,9 @@ export default function Challenge() {
 	};
 
 	const createRoom = () => {
-		const code = Math.random().toString(36).substring(2, 8).toUpperCase();
-		setRoomCode(code);
-		socket.emit("join_challenge", { challengeId: code, userDetails: { name: getUserName() } });
+		const codeStr = Math.random().toString(36).substring(2, 8).toUpperCase();
+		setRoomCode(codeStr);
+		socket.emit("join_challenge", { challengeId: codeStr, userDetails: { name: getUserName() } });
 		setIsHost(true);
 		setInRoom(true);
 	};
@@ -174,7 +195,7 @@ export default function Challenge() {
 		}
 	};
 
-	const runCode = (isSubmit) => {
+	const runCode = (isSubmit: boolean) => {
 		if (!code.trim() || isRunning) return;
 		setIsRunning(true);
 		setOutput(isSubmit ? "Evaluating against all test cases..." : "Running sample test case...");
@@ -203,7 +224,6 @@ export default function Challenge() {
 	const p2Score = opponent?.score || 0;
 	
 	const p1Index = myPlayer?.currentIndex ?? p1Score;
-	const p2Index = opponent?.currentIndex ?? p2Score;
 	
 	const currentQuestion = challengeState?.questions?.[p1Index];
 
@@ -218,7 +238,7 @@ export default function Challenge() {
 					
 					<button onClick={createRoom} className="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white py-3.5 rounded-xl font-bold mb-6 hover:shadow-[0_0_20px_rgba(37,99,235,0.4)] transition-all transform hover:-translate-y-1 cursor-pointer">
 						CREATE A ROOM
-					</button>
+					</button> Keen
 
 					<div className="flex items-center gap-3 mb-6">
 						<div className="h-px bg-white/10 flex-1"></div>
@@ -421,7 +441,6 @@ export default function Challenge() {
 						</button>
 					</div>
 
-					{/* Surrender Button in bottom right of this pane */}
 					<div className="absolute bottom-6 right-8">
 						<button onClick={surrender} className="text-xs text-gray-500 hover:text-red-400 transition-colors cursor-pointer underline">
 							Surrender Match

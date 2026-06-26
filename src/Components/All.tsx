@@ -2,8 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { db, auth } from '../firebase';
 import { collection, query, where, onSnapshot, doc, getDoc } from 'firebase/firestore';
 
-const AllList = ({ onSelect, setActiveTab }) => {
-  const [friends, setFriends] = useState([]);
+interface Friend {
+  id: string;
+  username: string;
+  fullName: string;
+  [key: string]: any;
+}
+
+interface AllListProps {
+  onSelect: (friend: Friend) => void;
+  setActiveTab: (tab: string) => void;
+}
+
+const AllList: React.FC<AllListProps> = ({ onSelect, setActiveTab }) => {
+  const [friends, setFriends] = useState<Friend[]>([]);
 
   useEffect(() => {
     const currentUser = auth.currentUser;
@@ -15,14 +27,12 @@ const AllList = ({ onSelect, setActiveTab }) => {
     );
 
     const unsubscribe = onSnapshot(q, async (snapshot) => {
-      // Use Promise.all to fetch all user names in parallel
       const friendData = await Promise.all(
         snapshot.docs.map(async (friendDoc) => {
           const friendId = friendDoc.id;
           const friendBaseData = friendDoc.data();
           
           try {
-            // Fetch the actual 'name' from the users collection
             const userSnap = await getDoc(doc(db, "users", friendId));
             const fullName = userSnap.exists() ? userSnap.data().name : friendBaseData.username;
             
@@ -30,9 +40,9 @@ const AllList = ({ onSelect, setActiveTab }) => {
               id: friendId,
               ...friendBaseData,
               fullName: fullName || friendBaseData.username
-            };
+            } as Friend;
           } catch (error) {
-            return { id: friendId, ...friendBaseData, fullName: friendBaseData.username };
+            return { id: friendId, ...friendBaseData, fullName: friendBaseData.username } as Friend;
           }
         })
       );
@@ -42,7 +52,7 @@ const AllList = ({ onSelect, setActiveTab }) => {
     return () => unsubscribe();
   }, []);
 
-  const handleMessageClick = (friend) => {
+  const handleMessageClick = (friend: Friend) => {
     onSelect(friend);
     setActiveTab('chat');
   };

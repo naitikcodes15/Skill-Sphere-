@@ -1,5 +1,6 @@
+import React from "react";
 
-const QuestArena = () => {
+const QuestArena: React.FC = () => {
   return (
     <div className="flex-1 h-full bg-[#121212] text-white p-8 box-border flex flex-col gap-6 font-sans overflow-y-auto">
       <div className="flex justify-between items-center">

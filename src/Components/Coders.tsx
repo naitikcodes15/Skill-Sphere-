@@ -1,9 +1,17 @@
 import React, { useState } from "react";
 
-const Coders = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+interface Coder {
+  id: number;
+  name: string;
+  rank: string;
+  rating: number;
+  color: string;
+}
 
-  const dummyCoders = [
+const Coders: React.FC = () => {
+  const [searchTerm, setSearchTerm] = useState<string>("");
+
+  const dummyCoders: Coder[] = [
     { id: 1, name: "Naitik", rank: "Silver", rating: 710, color: "#C0C0C0" },
     { id: 2, name: "Aarav", rank: "Gold", rating: 1250, color: "#FFD700" },
     { id: 3, name: "Ishani", rank: "Bronze", rating: 420, color: "#CD7F32" },

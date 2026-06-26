@@ -1,9 +1,18 @@
 import React from 'react';
 
-// Added default parameter = [] to prevent "Cannot read properties of undefined"
-const OnlineList = ({ friends = [], onSelect }) => {
-  
-  // Guard against null/undefined just in case
+interface OnlineFriend {
+  id: string;
+  name: string;
+  status: string;
+  [key: string]: any;
+}
+
+interface OnlineListProps {
+  friends?: OnlineFriend[];
+  onSelect: (friend: OnlineFriend) => void;
+}
+
+const OnlineList: React.FC<OnlineListProps> = ({ friends = [], onSelect }) => {
   const safeFriends = friends || [];
   const onlineFriends = safeFriends.filter(f => f.status === 'online');
 

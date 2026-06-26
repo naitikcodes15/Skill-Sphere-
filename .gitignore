@@ -12,5 +12,6 @@ serviceAccountKey.json
 temp.cpp
 test_*.js
 test_*.py
-test_*.cjs
 *.log
+dist/
+backend/dist/

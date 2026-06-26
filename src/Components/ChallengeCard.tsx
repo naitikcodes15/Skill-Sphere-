@@ -1,20 +1,26 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { BACKEND_URL } from "../utils/api";
 
-const ChallengeCard = ({ setMode }) => {
+interface ChallengeCardProps {
+  setMode: (mode: string) => void;
+}
 
+interface Opponent {
+  id: string;
+  name?: string;
+}
+
+const ChallengeCard: React.FC<ChallengeCardProps> = ({ setMode }) => {
 	const { currentUser } = useAuth();
 	console.log("Auth Check: Who is logged in?", currentUser);
-	const [gameType, setGameType] = useState("MCQ");
-	const [joinCode, setJoinCode] = useState(null);
-	const [opponent, setOpponent] = useState(null);
-	const [isLoading, setIsLoading] = useState(false);
-	const [errorMessage, setErrorMessage] = useState("");
+	const [gameType, setGameType] = useState<string>("MCQ");
+	const [joinCode, setJoinCode] = useState<string | null>(null);
+	const [opponent, setOpponent] = useState<Opponent | null>(null);
+	const [errorMessage, setErrorMessage] = useState<string>("");
 
 	const handleCreateChallenge = async () => {
-
 		try {
 			if (!currentUser) {
 				alert("You must be logged in to join a challenge!");
@@ -26,14 +32,12 @@ const ChallengeCard = ({ setMode }) => {
 			console.log(codeFromServer);
 			setJoinCode(codeFromServer);
 			setErrorMessage("");
-
-		}
-		catch (error) {
+		} catch (error: any) {
 			const msg = error.response?.data?.message || "Server connection failed";
 			setErrorMessage(msg);
-
 		}
 	};
+
 	const handleJoinChallenge = async () => {
 		try {
 			if (!currentUser) {
@@ -41,31 +45,19 @@ const ChallengeCard = ({ setMode }) => {
 				return;
 			}
 			const payload = { userId: currentUser.uid };
-			const response = await axios.post(`${BACKEND_URL}/api/challenge/${joinCode}/join`, payload);
-
+			await axios.post(`${BACKEND_URL}/api/challenge/${joinCode}/join`, payload);
+		} catch (error) {
+			console.error("Join error:", error);
 		}
-		catch (error) {
-
-		}
-
 	}
-
 
 	return (
 		<div className="flex justify-center items-center h-screen bg-[#0f172a] font-sans overflow-hidden">
-
-			{/* CARD */}
 			<div className="bg-[#1e293b] text-[#f8fafc] w-full max-w-[520px] h-full flex flex-col justify-between p-6">
-				{/* TOP CONTENT */}
 				<div>
 					<h2 className="text-[20px] font-bold mb-6">Challenge Someone</h2>
 
 					<div className="flex flex-col gap-4">
-
-
-
-
-						{/* GAME TYPE */}
 						<div className="flex flex-col gap-2">
 							<label className="text-[12px] text-[#94a3b8] uppercase tracking-[0.5px] font-bold">
 								GAME TYPE
@@ -91,14 +83,11 @@ const ChallengeCard = ({ setMode }) => {
 								>
 									CODE
 								</button>
-
 							</div>
 						</div>
-
 					</div>
 				</div>
 
-				{/* BOTTOM BUTTONS */}
 				<div className="flex flex-col gap-3 mt-4">
 					<button onClick={() => { setMode("challenge"); handleCreateChallenge(); }} className="w-full py-4 rounded-md text-[15px] font-bold bg-[#334155] text-[#cbd5e1] hover:bg-[#475569] transition">
 						CREATE CHALLENGE
@@ -146,7 +135,6 @@ const ChallengeCard = ({ setMode }) => {
 						<p className="text-red-400">❌ Not logged in right now.</p>
 					)}
 				</div>
-
 			</div>
 		</div>
 	);

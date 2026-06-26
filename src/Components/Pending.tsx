@@ -2,14 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { db, auth } from '../firebase';
 import { collection, query, where, onSnapshot, doc, deleteDoc } from 'firebase/firestore';
 
-const PendingList = () => {
-    const [pendingRequests, setPendingRequests] = useState([]);
+interface UserRequest {
+  id: string;
+  username: string;
+  [key: string]: any;
+}
+
+const PendingList: React.FC = () => {
+    const [pendingRequests, setPendingRequests] = useState<UserRequest[]>([]);
 
     useEffect(() => {
         const currentUser = auth.currentUser;
         if (!currentUser) return;
 
-        // "requested" = Outgoing requests sent by you
         const q = query(
             collection(db, 'users', currentUser.uid, 'friends'),
             where('status', '==', 'requested')
@@ -19,22 +24,19 @@ const PendingList = () => {
             const list = snapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
-            }));
+            } as UserRequest));
             setPendingRequests(list);
         });
 
         return () => unsubscribe();
     }, []);
 
-    // Function to cancel an outgoing request
-    const cancelRequest = async (targetUserId) => {
+    const cancelRequest = async (targetUserId: string) => {
         const currentUser = auth.currentUser;
         if (!currentUser) return;
 
         try {
-            // Remove from your list
             await deleteDoc(doc(db, 'users', currentUser.uid, 'friends', targetUserId));
-            // Remove from their list
             await deleteDoc(doc(db, 'users', targetUserId, 'friends', currentUser.uid));
         } catch (error) {
             console.error("Error canceling request:", error);

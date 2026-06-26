@@ -1,6 +1,18 @@
 import React from 'react';
 
-const AddFriend = ({ onSearch, searchResults, onAddFriend, setSearchName }) => {
+interface SearchUser {
+  id: string;
+  username: string;
+}
+
+interface AddFriendProps {
+  onSearch: () => void;
+  searchResults: SearchUser[];
+  onAddFriend: (user: SearchUser) => void;
+  setSearchName: (name: string) => void;
+}
+
+const AddFriend: React.FC<AddFriendProps> = ({ onSearch, searchResults, onAddFriend, setSearchName }) => {
   return (
     <div className="bg-[#313338] p-5 px-7 h-full text-white font-sans">
       <div className="flex justify-between items-center mb-5">

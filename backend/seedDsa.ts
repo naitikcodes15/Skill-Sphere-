@@ -1,10 +1,33 @@
 import mongoose from 'mongoose';
 import "dotenv/config";
-import DsaQuestion from './src/models/DsaQuestion.js';
+import DsaQuestion from './src/models/DsaQuestion';
 
 const MONGODB_URI = process.env.MONGO_URI || process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/skillsphere";
 
-const questionsList = [
+interface TestCase {
+  input: string;
+  expectedOutput: string;
+}
+
+interface InitialCodeMap {
+  javascript: string;
+  python: string;
+  cpp: string;
+  java: string;
+  c: string;
+}
+
+interface QuestionItem {
+  title: string;
+  description: string;
+  difficulty: string;
+  category: string;
+  points: number;
+  testCases: TestCase[];
+  initialCode: InitialCodeMap;
+}
+
+const questionsList: QuestionItem[] = [
   // Category 1: Basic Math & Logic
   {
     title: "1. Palindrome Number",
@@ -200,7 +223,6 @@ const questionsList = [
   }
 ];
 
-// Generate the remaining 40 questions to hit the quota of 50
 for (let i = 11; i <= 50; i++) {
   questionsList.push({
     title: `${i}. DSA Challenge ${i}`,
@@ -213,7 +235,7 @@ for (let i = 11; i <= 50; i++) {
       { input: "4,5,6", expectedOutput: "6" }
     ],
     initialCode: {
-      javascript: "function solve(input) {\n  // return the correct answer as a string\n  return input.split(',').pop();\n}",
+      javascript: "function solve(input) {\n  // return the correct answer as a string\n  return input.split(',').pop() || '';\n}",
       python: "def solve(input):\n    # return the correct answer as a string\n    return input.split(',')[-1]",
       cpp: "string solve(string input) {\n  // return answer\n  return string(1, input.back());\n}",
       java: "public static String solve(String input) {\n  // return answer\n  String[] parts = input.split(\",\");\n  return parts[parts.length - 1];\n}",

@@ -1,8 +1,9 @@
 import axios from "axios";
-const fetchQuestions = async () => {
+
+const fetchQuestions = async (): Promise<any> => {
   const res = await axios.get("https://quizapi.io/api/v1/questions", {
     headers: {
-      "X-Api-Key": process.env.QUIZ_API_KEY,
+      "X-Api-Key": process.env.QUIZ_API_KEY || "",
     },
     params: {
       limit: 10,
@@ -13,4 +14,3 @@ const fetchQuestions = async () => {
 };
 
 export default fetchQuestions;
-

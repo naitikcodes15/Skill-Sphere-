@@ -1,9 +1,35 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BACKEND_URL } from "../utils/api";
 
-const SessionDetails = ({ sessionId, setMode }) => {
-    const [session, setSession] = useState(null);
-    const [currentIndex, setCurrentIndex] = useState(0);
+interface AnswerOption {
+  id: string;
+  text: string;
+  isCorrect?: boolean;
+}
+
+interface QuestionRecord {
+  id: string;
+  text?: string;
+  question?: string;
+  title?: string;
+  description?: string;
+  answers?: AnswerOption[];
+}
+
+interface SessionInfo {
+  questions?: QuestionRecord[];
+  userAnswers?: any;
+  score: number;
+}
+
+interface SessionDetailsProps {
+  sessionId: string | null;
+  setMode: (mode: string) => void;
+}
+
+const SessionDetails: React.FC<SessionDetailsProps> = ({ sessionId, setMode }) => {
+    const [session, setSession] = useState<SessionInfo | null>(null);
+    const [currentIndex, setCurrentIndex] = useState<number>(0);
 
     useEffect(() => {
         if (!sessionId) return;
@@ -19,7 +45,6 @@ const SessionDetails = ({ sessionId, setMode }) => {
             .catch(err => console.error("Error fetching session:", err));
     }, [sessionId]);
 
-    // CIRCUIT BREAKER: Ensures session AND the specific question index exist before rendering
     if (!session || !session.questions || !session.questions[currentIndex]) {
         return (
             <div className="flex-1 h-full bg-[#121212] text-white p-8 flex items-center justify-center">
@@ -30,13 +55,13 @@ const SessionDetails = ({ sessionId, setMode }) => {
         );
     }
 
-    // Naming aligned with your Database Schema ("questions")
     const currentAnswerRecord = session.questions[currentIndex];
     const totalQuestions = session.questions.length;
 
-    // Derive answers dynamically
     const userAnswersMap = session.userAnswers || {};
-    const selectedAnswerId = typeof userAnswersMap.get === 'function' ? userAnswersMap.get(currentAnswerRecord.id) : userAnswersMap[currentAnswerRecord.id];
+    const selectedAnswerId = typeof userAnswersMap.get === 'function' 
+        ? userAnswersMap.get(currentAnswerRecord.id) 
+        : userAnswersMap[currentAnswerRecord.id];
     const selectedOpt = currentAnswerRecord.answers?.find(a => a.id === selectedAnswerId);
     const selectedAnswerText = selectedOpt ? selectedOpt.text : "SKIPPED";
 
@@ -46,7 +71,6 @@ const SessionDetails = ({ sessionId, setMode }) => {
 
     return (
         <div className="flex-1 h-full bg-[#121212] text-white p-8 flex flex-col font-sans overflow-y-auto">
-            {/* Header Info */}
             <div className="flex justify-between items-center mb-10 border-b border-gray-800 pb-4">
                 <div>
                     <h1 className="text-2xl font-bold text-blue-400 uppercase tracking-tight">Session Review</h1>
@@ -60,10 +84,8 @@ const SessionDetails = ({ sessionId, setMode }) => {
                 </div>
             </div>
 
-            {/* Question Card */}
             <div className="bg-[#1f2937] p-6 rounded border-l-4 border-blue-500 mb-8 shadow-xl">
                 <span className="text-xs text-blue-400 font-bold uppercase tracking-widest">Question {currentIndex + 1}</span>
-                {/* Ensure property matches snapshot: 'text', 'title', or 'question' */}
                 <h2 className="text-xl mt-3 font-medium leading-relaxed">
                     {currentAnswerRecord.text || currentAnswerRecord.question || currentAnswerRecord.title}
                 </h2>
@@ -72,9 +94,7 @@ const SessionDetails = ({ sessionId, setMode }) => {
                 )}
             </div>
 
-            {/* Comparison View */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-                {/* User's Choice */}
                 <div className={`p-6 rounded border transition-all ${isCorrect ? 'border-green-500/50 bg-green-500/5' : 'border-red-500/50 bg-red-500/5'}`}>
                     <span className="text-[10px] uppercase font-black tracking-widest opacity-50 mb-2 block">Your Selection</span>
                     <p className={`text-lg font-bold ${isCorrect ? 'text-green-400' : 'text-red-400'}`}>
@@ -88,7 +108,6 @@ const SessionDetails = ({ sessionId, setMode }) => {
                     </div>
                 </div>
 
-                {/* Correct Choice (Only show if user was wrong) */}
                 {!isCorrect && (
                     <div className="p-6 rounded border border-green-500/30 bg-green-500/5">
                         <span className="text-[10px] uppercase font-black tracking-widest text-green-500/60 mb-2 block">Correct Answer</span>
@@ -102,7 +121,6 @@ const SessionDetails = ({ sessionId, setMode }) => {
                 )}
             </div>
 
-            {/* Navigation Controls */}
             <div className="mt-auto flex justify-between items-center pt-6 border-t border-gray-800">
                 <div className="flex gap-3">
                     <button
